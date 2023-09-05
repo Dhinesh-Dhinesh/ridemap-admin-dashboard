@@ -46,13 +46,15 @@ import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 
 //& Redux
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { getDepartments } from '../../redux/features/instituteSlice';
+import { getDepartments, getBusses } from '../../redux/features/instituteSlice';
 import { shallowEqual } from 'react-redux';
 
 
 
 // Router
 import { useNavigate } from 'react-router-dom';
+import compressImage from '../../util/imageCompresser';
+import { } from '../../redux/features/actions/instituteActions';
 
 const formDataProps = [
     'name',
@@ -63,6 +65,7 @@ const formDataProps = [
     'address',
     'city',
     'busStop',
+    'busNo',
     'department',
     'validUpto',
     'gender',
@@ -81,9 +84,10 @@ const CreateUser: React.FC = () => {
 
     // redux
     const dispatch = useAppDispatch();
-    const { departments, institute } = useAppSelector((state) => {
+    const { institute, departments, busses } = useAppSelector((state) => {
         return {
             departments: state?.institute?.departments,
+            busses: state.institute?.busses,
             institute: state?.auth?.admin?.institute
         }
     },
@@ -113,7 +117,7 @@ const CreateUser: React.FC = () => {
 
     // form
     const [formData, setFormData] = useState<FormData>({} as FormData)
-    const { name, fatherName, emailOrPhone, phone, enrollNo, address, city, busStop, department, validUpto, photo, gender } = formData
+    const { name, fatherName, emailOrPhone, phone, enrollNo, address, city, busStop, department, validUpto, photo, gender, busNo } = formData
 
     const { handleSubmit, control, setValue, formState } = useForm<FormData>();
 
@@ -135,6 +139,9 @@ const CreateUser: React.FC = () => {
         if (institute) {
             if (!departments) {
                 dispatch(getDepartments(institute))
+            }
+            if (!busses) {
+                dispatch(getBusses(institute))
             }
         }
     }, [institute, dispatch]);
@@ -316,8 +323,28 @@ const CreateUser: React.FC = () => {
                             onChange={onChange}
                             error={!!error}
                             helperText={error ? error.message : null}
-                            sx={{ gridColumn: "span 2" }}
+                            sx={{ gridColumn: "span 1" }}
                         />
+                    )}
+                    rules={{ required: 'Required' }}
+                />
+                <Controller
+                    name="busNo"
+                    control={control}
+                    defaultValue=""
+                    render={({ field: { onChange }, fieldState: { error } }) => (
+                        <FormControl fullWidth error={!!error} sx={{ gridColumn: "span 1" }}>
+                            <Autocomplete
+                                disablePortal
+                                id="combo-box-demo"
+                                options={busses as string[] || []}
+                                renderInput={(params: AutocompleteRenderInputParams) => <TextField {...params} label="Bus no" error={!!error} />}
+                                onChange={(_e, newValue) => onChange(newValue as string)}
+                            />
+                            {error && (
+                                <FormHelperText>{error.message}</FormHelperText>
+                            )}
+                        </FormControl>
                     )}
                     rules={{ required: 'Required' }}
                 />
@@ -382,10 +409,14 @@ const CreateUser: React.FC = () => {
                                         accept="image/*"
                                         multiple={false}
                                         type="file"
-                                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                                        onChange={async (event: ChangeEvent<HTMLInputElement>) => {
                                             if (event.target.files && event.target.files.length > 0) {
                                                 const file = event.target.files[0];
-                                                onChange(URL.createObjectURL(file));
+
+                                                // compressing image
+                                                const compressedImage = await compressImage(file, 500, 500);
+
+                                                onChange(URL.createObjectURL(compressedImage));
                                             }
                                         }} />
                                 </Button>
@@ -498,6 +529,13 @@ const CreateUser: React.FC = () => {
                                                 </TableCell>
                                                 <TableCell>:</TableCell>
                                                 <TableCell>{busStop}</TableCell>
+                                            </TableRow>
+                                            <TableRow>
+                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
+                                                    Bus Stop
+                                                </TableCell>
+                                                <TableCell>:</TableCell>
+                                                <TableCell>{busNo}</TableCell>
                                             </TableRow>
                                             <TableRow>
                                                 <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>

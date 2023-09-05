@@ -47,3 +47,17 @@ export const getInstituteDepartments = async (institute: string) => {
         throw error;
     }
 }
+
+export const getInstituteBusses = async (institute: string) => {
+    try {
+        const docRef = doc(db, `institutes/${institute}`,)
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const busses: string[] | null = docSnap.data()?.busses;
+            return busses;
+        } else return null;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

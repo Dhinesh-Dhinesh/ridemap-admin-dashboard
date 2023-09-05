@@ -11,6 +11,7 @@ import User from "./pages/user/user";
 import CreateUser from "./pages/user/createUser";
 import Admin from "./pages/admin/admin";
 import CreateAdmin from "./pages/admin/createAdmin";
+import Settings from "./pages/settings"
 
 import Topbar from "./global/Topbar";
 
@@ -117,6 +118,7 @@ const App: React.FC = () => {
                 <Route path="/create-admin" element={<CreateAdmin />} />
                 <Route path="/users" element={<User />} />
                 <Route path="/create-user" element={<CreateUser />} />
+                <Route path="/settings" element={<Settings />} />
               </Route>
             </Routes>
           </main>

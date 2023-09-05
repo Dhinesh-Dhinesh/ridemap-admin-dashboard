@@ -6,6 +6,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 // Images
 import logo from '../assets/logo.png';
@@ -107,6 +108,7 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
                         <MenuItem suffix={<AddCircleIcon />} component={<Link to="/create-user" />}> Create user </MenuItem>
                         <MenuItem suffix={<DeleteIcon />} component={<Link to="/delete-user" />}> Delete user </MenuItem>
                     </SubMenu>
+                    <MenuItem icon={<SettingsIcon />} component={<Link to="/settings" />}> Settings </MenuItem>
                 </Menu>
             </Sidebar>
         </Box>

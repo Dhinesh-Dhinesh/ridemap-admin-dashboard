@@ -2,13 +2,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Actions
-import { getInstituteAdmins, getInstituteDepartments } from './actions/instituteActions';
+import { getInstituteAdmins, getInstituteDepartments, getInstituteBusses } from './actions/instituteActions';
 
 // &Types
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Departments, Admins } from '../../types';
 
 type initialStateType = {
+    busses: string[] | null,
     departments: Departments,
     admins: {
         data: Admins[] | null,
@@ -18,6 +19,7 @@ type initialStateType = {
 
 //* initial state
 const initialState: initialStateType = {
+    busses: null,
     departments: null,
     admins: {
         data: null,
@@ -46,6 +48,10 @@ export const instituteSlice = createSlice({
         builder.addCase(getDepartments.fulfilled, (state, action: PayloadAction<Departments>) => {
             state.departments = action.payload;
         })
+        // getBusses
+        builder.addCase(getBusses.fulfilled, (state, action: PayloadAction<string[] | null>) => {
+            state.busses = action.payload;
+        })
     }
 });
 
@@ -63,6 +69,16 @@ export const getAdmins = createAsyncThunk('institute/getAdmins', async (institut
 export const getDepartments = createAsyncThunk('institute/getDepartments', async (institute: string) => {
     try {
         const data = await getInstituteDepartments(institute);
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+});
+
+export const getBusses = createAsyncThunk('institute/getBusses', async (institute: string) => {
+    try {
+        const data = await getInstituteBusses(institute);
         return data;
     } catch (error) {
         console.log(error);
