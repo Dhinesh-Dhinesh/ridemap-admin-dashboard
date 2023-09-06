@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Actions
-import { getInstituteAdmins, getInstituteDepartments, getInstituteBusses } from './actions/instituteActions';
+import { getInstituteAdmins, getInstituteDepartments, getInstituteBusses, addInstituteBusNo, addInstituteDepartment, deleteInstituteBusNo, deleteInstituteDepartment } from './actions/instituteActions';
 
 // &Types
 import type { PayloadAction } from '@reduxjs/toolkit';
@@ -10,6 +10,10 @@ import type { Departments, Admins } from '../../types';
 
 type initialStateType = {
     busses: string[] | null,
+    loadingStates: {
+        busses: boolean,
+        departments: boolean
+    }
     departments: Departments,
     admins: {
         data: Admins[] | null,
@@ -20,6 +24,10 @@ type initialStateType = {
 //* initial state
 const initialState: initialStateType = {
     busses: null,
+    loadingStates: {
+        busses: false,
+        departments: false
+    },
     departments: null,
     admins: {
         data: null,
@@ -52,6 +60,52 @@ export const instituteSlice = createSlice({
         builder.addCase(getBusses.fulfilled, (state, action: PayloadAction<string[] | null>) => {
             state.busses = action.payload;
         })
+        // add BusNO
+        builder.addCase(addBusses.pending, (state) => {
+            state.loadingStates.busses = true;
+        })
+        builder.addCase(addBusses.fulfilled, (state, action: PayloadAction<string | null>) => {
+            if (action.payload !== null && state.busses !== null) {
+                if (!state.busses.includes(action.payload)) {
+                    state.busses = [...state.busses, action.payload];
+                }
+            } else if (action.payload !== null && state.busses === null) {
+                state.busses = [action.payload];
+            }
+            state.loadingStates.busses = false;
+        })
+        builder.addCase(addBusses.rejected, (state) => {
+            state.loadingStates.busses = false;
+        })
+        // delete busNo
+        builder.addCase(deleteBusNo.fulfilled, (state, action: PayloadAction<string | null>) => {
+            if (action.payload !== null && state.busses !== null) {
+                state.busses = state.busses.filter(busNo => busNo !== action.payload);
+            }
+        })
+        // add Department
+        builder.addCase(addDepartment.pending, (state) => {
+            state.loadingStates.departments = true;
+        })
+        builder.addCase(addDepartment.fulfilled, (state, action: PayloadAction<string | null>) => {
+            if (action.payload !== null && state.departments !== null) {
+                if (!state.departments.includes(action.payload)) {
+                    state.departments = [...state.departments, action.payload];
+                }
+            } else if (action.payload !== null && state.departments === null) {
+                state.departments = [action.payload];
+            }
+            state.loadingStates.departments = false;
+        })
+        builder.addCase(addDepartment.rejected, (state) => {
+            state.loadingStates.departments = false;
+        })
+        // delete Department
+        builder.addCase(deleteDepartment.fulfilled, (state, action: PayloadAction<string | null>) => {
+            if (action.payload !== null && state.departments !== null) {
+                state.departments = state.departments.filter(department => department !== action.payload);
+            }
+        })
     }
 });
 
@@ -79,6 +133,46 @@ export const getDepartments = createAsyncThunk('institute/getDepartments', async
 export const getBusses = createAsyncThunk('institute/getBusses', async (institute: string) => {
     try {
         const data = await getInstituteBusses(institute);
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+});
+
+export const addBusses = createAsyncThunk('institute/addBusses', async ([institute, busses]: [institute: string, busses: string]) => {
+    try {
+        const data = await addInstituteBusNo(institute, busses);
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+});
+
+export const deleteBusNo = createAsyncThunk('institute/deleteBusses', async ([institute, busses]: [institute: string, busses: string]) => {
+    try {
+        const data = await deleteInstituteBusNo(institute, busses);
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+});
+
+export const addDepartment = createAsyncThunk('institute/addDepartment', async ([institute, department]: [institute: string, department: string]) => {
+    try {
+        const data = await addInstituteDepartment(institute, department);
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+});
+
+export const deleteDepartment = createAsyncThunk('institute/deleteDepartment', async ([institute, department]: [institute: string, department: string]) => {
+    try {
+        const data = await deleteInstituteDepartment(institute, department);
         return data;
     } catch (error) {
         console.log(error);

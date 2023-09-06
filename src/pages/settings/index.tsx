@@ -3,8 +3,11 @@ import { styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
 import { useEffect, useState } from "react";
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { shallowEqual } from "react-redux";
+import { addBusses, addDepartment, deleteBusNo, deleteDepartment, getBusses, getDepartments } from "../../redux/features/instituteSlice";
+import { LoadingButton } from "@mui/lab";
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 interface ChipData {
     key: number;
@@ -23,21 +26,34 @@ const Settings = () => {
     const [bussesInput, setBussesInput] = useState<string>('');
     const [depInput, setDepInput] = useState<string>('');
 
-    const { institute, departments, busses } = useAppSelector((state) => {
+    const {
+        institute, departments, busses,
+        addBusLoading, addDepartmentLoading
+    } = useAppSelector((state) => {
         return {
             departments: state?.institute?.departments,
             busses: state.institute?.busses,
-            institute: state?.auth?.admin?.institute
+            institute: state?.auth?.admin?.institute,
+            addBusLoading: state.institute?.loadingStates?.busses,
+            addDepartmentLoading: state.institute?.loadingStates?.departments,
         }
     },
         shallowEqual
     );
 
+    const dispatch = useAppDispatch();
 
-    const handleDelete = (chipToDelete: ChipData) => () => {
-        setBussesChipData((chips) => { if (chips) return chips.filter((chip) => chip.key !== chipToDelete.key).sort((a, b) => a.label.localeCompare(b.label)) });
+    const handleDelete = (chipToDelete: ChipData, type: "busses" | "departments") => () => {
+
+        if (type === 'busses') {
+            dispatch(deleteBusNo([institute as string, chipToDelete.label]))
+        } else if (type === 'departments') {
+            dispatch(deleteDepartment([institute as string, chipToDelete.label]))
+        }
+
     };
 
+    // For setting value of departments and busses in chip data
     useEffect(() => {
         setBussesChipData(busses?.map((bus, index) => {
             return { key: index, label: bus }
@@ -46,7 +62,21 @@ const Settings = () => {
         setDepChipData(departments?.map((dep, index) => {
             return { key: index, label: dep }
         }).sort((a, b) => a.label.localeCompare(b.label)));
+        setBussesInput('');
+        setDepInput('');
     }, [busses, departments])
+
+    // For setting value of departments and busses in redux store from db
+    useEffect(() => {
+        if (institute) {
+            if (!departments) {
+                dispatch(getDepartments(institute))
+            }
+            if (!busses) {
+                dispatch(getBusses(institute))
+            }
+        }
+    }, [institute, dispatch]);
 
     return (
         <Box m="20px">
@@ -78,7 +108,7 @@ const Settings = () => {
                             <ListItem key={data.key}>
                                 <Chip
                                     label={data.label}
-                                    onDelete={data.label === 'React' ? undefined : handleDelete(data)}
+                                    onDelete={handleDelete(data, "busses")}
                                 />
                             </ListItem>
                         );
@@ -86,11 +116,23 @@ const Settings = () => {
                 </Paper>
                 <TextField
                     id="outlined-basic"
+                    autoComplete="off"
                     label="Add Busses"
                     variant="outlined"
                     onChange={(e) => { setBussesInput(e.target.value.toUpperCase()) }}
                     value={bussesInput}
                 />
+                <LoadingButton
+                    sx={{ p: "1rem", ml: "1rem" }}
+                    color="primary"
+                    onClick={() => dispatch(addBusses([institute as string, bussesInput]))}
+                    loading={addBusLoading}
+                    loadingPosition="start"
+                    startIcon={<AddCircleOutlineIcon />}
+                    variant="contained"
+                >
+                    <span>Add</span>
+                </LoadingButton>
 
                 {/* Departments */}
 
@@ -112,7 +154,7 @@ const Settings = () => {
                             <ListItem key={data.key}>
                                 <Chip
                                     label={data.label}
-                                    onDelete={data.label === 'React' ? undefined : handleDelete(data)}
+                                    onDelete={handleDelete(data, "departments")}
                                 />
                             </ListItem>
                         );
@@ -121,10 +163,22 @@ const Settings = () => {
                 <TextField
                     id="outlined-basic"
                     label="Add Departments"
+                    autoComplete="off"
                     variant="outlined"
                     onChange={(e) => { setDepInput(e.target.value.toUpperCase()); }}
                     value={depInput}
                 />
+                <LoadingButton
+                    sx={{ p: "1rem", ml: "1rem" }}
+                    color="primary"
+                    onClick={() => dispatch(addDepartment([institute as string, depInput]))}
+                    loading={addDepartmentLoading}
+                    loadingPosition="start"
+                    startIcon={<AddCircleOutlineIcon />}
+                    variant="contained"
+                >
+                    <span>Add</span>
+                </LoadingButton>
             </Box>
         </Box>
     )

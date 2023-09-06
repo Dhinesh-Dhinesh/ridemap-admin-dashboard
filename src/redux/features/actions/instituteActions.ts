@@ -1,5 +1,5 @@
 // Firebase
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { arrayRemove, arrayUnion, collection, doc, getDoc, getDocs, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 import { formatTimestamp } from "../../../util/dateFormatter";
 
@@ -56,6 +56,74 @@ export const getInstituteBusses = async (institute: string) => {
             const busses: string[] | null = docSnap.data()?.busses;
             return busses;
         } else return null;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const addInstituteBusNo = async (institute: string, busNo: string): Promise<string | null> => {
+    try {
+        const docRef = doc(db, 'institutes', institute);
+
+        if (!busNo) return null;
+
+        await updateDoc(docRef, {
+            busses: arrayUnion(busNo)
+        })
+
+        return busNo;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const deleteInstituteBusNo = async (institute: string, busNo: string): Promise<string | null> => {
+    try {
+        const docRef = doc(db, 'institutes', institute);
+
+        if (!busNo) return null;
+
+        await updateDoc(docRef, {
+            busses: arrayRemove(busNo)
+        })
+
+        return busNo;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const addInstituteDepartment = async (institute: string, departments: string): Promise<string | null> => {
+    try {
+        const docRef = doc(db, 'institutes', institute);
+
+        if (!departments) return null;
+
+        await updateDoc(docRef, {
+            departments: arrayUnion(departments)
+        })
+
+        return departments;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export const deleteInstituteDepartment = async (institute: string, departments: string): Promise<string | null> => {
+    try {
+        const docRef = doc(db, 'institutes', institute);
+
+        if (!departments) return null;
+
+        await updateDoc(docRef, {
+            departments: arrayRemove(departments)
+        })
+
+        return departments;
     } catch (error) {
         console.log(error);
         throw error;

@@ -134,7 +134,7 @@ const CreateUser: React.FC = () => {
         }
     };
 
-    // for setting value of departments
+    // for setting value of departments & busses
     useEffect(() => {
         if (institute) {
             if (!departments) {
