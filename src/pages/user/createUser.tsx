@@ -1,9 +1,8 @@
-import { useState, ChangeEvent, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 // Mui
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import FormControl from '@mui/material/FormControl';
 import Autocomplete from '@mui/material/Autocomplete';
 import useMediaQuery from "@mui/material/useMediaQuery";
@@ -15,27 +14,18 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { LoadingButton } from "@mui/lab";
 
-import {
-    Typography, Card, CardContent, CardActionArea, TableContainer, Table,
-    TableBody, TableRow, TableCell, InputAdornment, Tooltip
-} from "@mui/material";
+import { Alert, InputAdornment, Tooltip } from "@mui/material";
 
 import Zoom from '@mui/material/Zoom';
 
 // mui icons
 import InfoIcon from '@mui/icons-material/Info';
-import PersonIcon from '@mui/icons-material/Person';
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 
 // mui customs
 import { BaseButton } from '../../components/BaseButton';
-
-// Dialog
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
+import SnackBar from '../../components/SnackBar';
 
 // Date Picker
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -50,12 +40,10 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { getDepartments, getBusses } from '../../redux/features/instituteSlice';
 import { shallowEqual } from 'react-redux';
 
-
+import useApi from '../../util/api';
 
 // Router
 import { useNavigate } from 'react-router-dom';
-import compressImage from '../../util/imageCompresser';
-import { } from '../../redux/features/actions/instituteActions';
 
 const formDataProps = [
     'name',
@@ -70,62 +58,109 @@ const formDataProps = [
     'department',
     'validUpto',
     'gender',
-    'photo',
 ] as const;
 
 type FormData = {
     [K in typeof formDataProps[number]]: string;
 };
 
+type snackBar = {
+    open: boolean;
+    message: string;
+    severity: "success" | "error" | "info" | "warning" | undefined;
+}
+
 const CreateUser: React.FC = () => {
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
-
     const navigate = useNavigate();
+    const api = useApi();
+
+    const [snackBar, setSnackBar] = useState<snackBar>({
+        open: false,
+        message: "",
+        severity: undefined
+    });
 
     // redux
     const dispatch = useAppDispatch();
-    const { institute, departments, busses, sumbitLoading } = useAppSelector((state) => {
+    const { institute, departments, busses } = useAppSelector((state) => {
         return {
             departments: state?.institute?.departments,
             busses: state.institute?.busses,
             institute: state?.auth?.admin?.institute,
-            sumbitLoading: state?.auth?.isCreateUserLoading
         }
     },
         shallowEqual
     );
 
-    // dialog
-    const [open, setOpen] = useState<boolean>(false);
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
-    // for changing date format from validUpto date string
-    function getMonthAndYear(dateString: string): string {
-        const date = new Date(dateString);
-        const month = date.toLocaleString('default', { month: 'short' });
-        const year = date.getFullYear();
-
-        return month + " " + year;
-    }
-
-
     // form
-    const [formData, setFormData] = useState<FormData>({} as FormData)
-    const { name, fatherName, emailOrPhone, phone, enrollNo, address, city, busStop, department, validUpto, photo, gender, busNo } = formData
+    const [sumbitLoading, setSubmitLoading] = useState<boolean>(false);
+    const { handleSubmit, control, setValue, formState, reset } = useForm<FormData>();
 
-    const { handleSubmit, control, setValue, formState } = useForm<FormData>();
+    const onSubmit: SubmitHandler<FormData> = (formData) => {
 
-    const onSubmit: SubmitHandler<FormData> = (data) => {
-        setFormData(data);
-        handleClickOpen();
+        setSubmitLoading(true);
+
+        // trim all the values
+        // const userData = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, value.trim()]));
+
+        api.post("user/create", { ...formData, institute }).then((data: any) => {
+            console.log(data)
+
+            console.log(data.data.message)
+
+            if (data.data.message === "auth/user-created-successfully") {
+                setSnackBar({
+                    open: true,
+                    message: "User created successfully",
+                    severity: "success",
+                })
+                reset();
+            }
+        }).catch(err => {
+            console.log(err)
+
+            if (err.message === "Network Error") {
+                setSnackBar({
+                    open: true,
+                    message: "Network error",
+                    severity: "error",
+                })
+            }
+
+            switch (err.response.data.message) {
+                case "validation/enroll-already-exist":
+                    setSnackBar({
+                        open: true,
+                        message: "Enroll no already exist",
+                        severity: "warning",
+                    })
+                    break;
+                case "auth/phone-number-already-exists":
+                    setSnackBar({
+                        open: true,
+                        message: "Phone number already exist",
+                        severity: "warning",
+                    })
+                    break;
+                case "auth/email-already-exists":
+                    setSnackBar({
+                        open: true,
+                        message: "Email already exist",
+                        severity: "warning",
+                    })
+                    break;
+            }
+
+            setSubmitLoading(false)
+        }).finally(() => {
+            setSubmitLoading(false)
+            setTimeout(() => {
+                setSnackBar((prev) => ({ ...prev, open: false }));
+            }, 1000);
+        })
+
     };
 
     const handleEmailOrPhoneChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -246,7 +281,7 @@ const CreateUser: React.FC = () => {
                     defaultValue=""
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <TextField
-                            label="Phone"
+                            label="Whatsapp no"
                             type='number'
                             variant="outlined"
                             value={value}
@@ -395,42 +430,6 @@ const CreateUser: React.FC = () => {
                     rules={{ required: 'Required' }}
                 />
                 <Controller
-                    name="photo"
-                    control={control}
-                    defaultValue=""
-                    render={({ field: { onChange, value }, fieldState: { error } }) => (
-                        <FormControl fullWidth error={!!error} sx={{ gridColumn: "span 1" }}>
-                            <div className={`flex items-center border-2 h-14 px-2 rounded ${error ? "border-red-400" : ''}`}>
-                                <p className={`flex items-center text-gray-600 text-l mr-3 max-md:text-xs ${!!error ? "text-red-600" : ''}`}>
-                                    Profile Picture :
-                                </p>
-                                <Button variant="text" component="label" startIcon={<PersonIcon />} color={value ? "success" : undefined}>
-                                    {value ? "Change image" : "Choose image"}
-                                    <input
-                                        hidden
-                                        accept="image/*"
-                                        multiple={false}
-                                        type="file"
-                                        onChange={async (event: ChangeEvent<HTMLInputElement>) => {
-                                            if (event.target.files && event.target.files.length > 0) {
-                                                const file = event.target.files[0];
-
-                                                // compressing image
-                                                const compressedImage = await compressImage(file, 500, 500);
-
-                                                onChange(URL.createObjectURL(compressedImage));
-                                            }
-                                        }} />
-                                </Button>
-                            </div>
-                            {error && (
-                                <FormHelperText>{error.message}</FormHelperText>
-                            )}
-                        </FormControl>
-                    )}
-                    rules={{ required: 'Required' }}
-                />
-                <Controller
                     name="gender"
                     control={control}
                     defaultValue=""
@@ -467,124 +466,11 @@ const CreateUser: React.FC = () => {
                     Submit
                 </LoadingButton>
             </Box>
-
-            {/* Dialog */}
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
-            >
-                <DialogTitle id="alert-dialog-title">
-                    {"Preview"}
-                </DialogTitle>
-                <DialogContent>
-                    <Card className="">
-                        <CardActionArea>
-                            <CardContent>
-                                <Box sx={{ display: "flex", justifyContent: "center", flexDirection: "column", alignItems: "center" }}>
-                                    <Typography variant="h5" gutterBottom className='p-3 text-center'>
-                                        {name}
-                                    </Typography>
-                                    <img src={photo} alt="Profile Photo" style={{ width: '150px', height: '150px', objectFit: 'cover' }} className='rounded-full' />
-                                </Box>
-
-                                <TableContainer>
-                                    <Table>
-                                        <TableBody>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Father's Name:
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{fatherName}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Email/Phone
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{emailOrPhone}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Phone
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{phone}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Address
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{address}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    City
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{city}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Bus Stop
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{busStop}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Bus Stop
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{busNo}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Enrollment No
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{enrollNo}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Department
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{department}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Gender
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{gender}</TableCell>
-                                            </TableRow>
-                                            <TableRow>
-                                                <TableCell component="th" scope="row" sx={{ fontWeight: "bold" }}>
-                                                    Valid Upto
-                                                </TableCell>
-                                                <TableCell>:</TableCell>
-                                                <TableCell>{getMonthAndYear(validUpto)}</TableCell>
-                                            </TableRow>
-
-
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
-                            </CardContent>
-                        </CardActionArea>
-                    </Card>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleClose}>Disagree</Button>
-                    <Button onClick={handleClose} autoFocus>
-                        Agree
-                    </Button>
-                </DialogActions>
-            </Dialog>
+            <SnackBar isOpen={snackBar.open}>
+                <div className="w-full">
+                    <Alert severity={snackBar.severity} variant='filled'>{snackBar.message}</Alert>
+                </div>
+            </SnackBar>
         </Box>
     )
 }

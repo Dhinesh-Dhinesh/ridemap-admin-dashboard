@@ -100,7 +100,7 @@ const Admin = () => {
           columns={columns}
           initialState={{
             pagination: {
-              paginationModel: { page: 0, pageSize: 5 },
+              paginationModel: { page: 0, pageSize: 20 },
             },
           }}
           slots={{
@@ -108,7 +108,7 @@ const Admin = () => {
             noRowsOverlay: CustomNoRowsOverlay,
             footer: () => Footer(selectedRows.length, selectedRows, institute as string, setSnackBar)
           }}
-          pageSizeOptions={[5, 10]}
+          pageSizeOptions={[5, 10, 20]}
           checkboxSelection
           disableRowSelectionOnClick
           isRowSelectable={(params: GridRowParams) => params.row.userId !== userId}
@@ -129,7 +129,7 @@ const Admin = () => {
     </Box>
   )
 }
- 
+
 export default Admin;
 
 // Data Grid Footer
