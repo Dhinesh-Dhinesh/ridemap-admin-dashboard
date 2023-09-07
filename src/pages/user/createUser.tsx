@@ -13,6 +13,7 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
+import { LoadingButton } from "@mui/lab";
 
 import {
     Typography, Card, CardContent, CardActionArea, TableContainer, Table,
@@ -84,11 +85,12 @@ const CreateUser: React.FC = () => {
 
     // redux
     const dispatch = useAppDispatch();
-    const { institute, departments, busses } = useAppSelector((state) => {
+    const { institute, departments, busses, sumbitLoading } = useAppSelector((state) => {
         return {
             departments: state?.institute?.departments,
             busses: state.institute?.busses,
-            institute: state?.auth?.admin?.institute
+            institute: state?.auth?.admin?.institute,
+            sumbitLoading: state?.auth?.isCreateUserLoading
         }
     },
         shallowEqual
@@ -454,14 +456,16 @@ const CreateUser: React.FC = () => {
                     )}
                     rules={{ required: 'Required' }}
                 />
-
-                <div className="mt-6">
-                    <button
-                        type="submit"
-                        className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-700 rounded-md hover:bg-purple-600 focus:outline-none focus:bg-purple-600">
-                        Submit
-                    </button>
-                </div>
+                <LoadingButton
+                    fullWidth
+                    sx={{ marginTop: "1rem" }}
+                    color="primary"
+                    type="submit"
+                    variant="contained"
+                    loading={sumbitLoading}
+                >
+                    Submit
+                </LoadingButton>
             </Box>
 
             {/* Dialog */}

@@ -48,7 +48,7 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
                 <div className='flex flex-col justify-center items-center' onClick={() => {
                     collapseSidebar()
                 }}>
-                    <img src={logo} alt="logo" className='min-w-24 min-h-24 mx-auto my-5' />
+                    <img src={logo} alt="logo" className='max-w-24 max-h-24 mx-auto my-5 p-2' />
                     <p className="text-white mb-6">Ridemap</p>
                 </div>
                 <Menu
