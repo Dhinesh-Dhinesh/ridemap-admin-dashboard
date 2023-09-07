@@ -2,11 +2,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Actions
-import { getInstituteAdmins, getInstituteDepartments, getInstituteBusses, addInstituteBusNo, addInstituteDepartment, deleteInstituteBusNo, deleteInstituteDepartment } from './actions/instituteActions';
+import { getInstituteAdmins, getInstituteDepartments, getInstituteBusses, addInstituteBusNo, addInstituteDepartment, deleteInstituteBusNo, deleteInstituteDepartment, getUsersFromInstitute } from './actions/instituteActions';
 
 // &Types
 import type { PayloadAction } from '@reduxjs/toolkit';
-import type { Departments, Admins } from '../../types';
+import type { Departments, Admins, UserData } from '../../types';
 
 type initialStateType = {
     busses: string[] | null,
@@ -17,6 +17,10 @@ type initialStateType = {
     departments: Departments,
     admins: {
         data: Admins[] | null,
+        loading: boolean,
+    },
+    users: {
+        data: UserData[] | null,
         loading: boolean,
     }
 }
@@ -30,6 +34,10 @@ const initialState: initialStateType = {
     },
     departments: null,
     admins: {
+        data: null,
+        loading: false,
+    },
+    users: {
         data: null,
         loading: false,
     }
@@ -106,6 +114,17 @@ export const instituteSlice = createSlice({
                 state.departments = state.departments.filter(department => department !== action.payload);
             }
         })
+        // getusers
+        builder.addCase(getUsers.pending, (state) => {
+            state.users.loading = true;
+        })
+        builder.addCase(getUsers.fulfilled, (state, action: PayloadAction<UserData[] | null>) => {
+            state.users.data = action.payload;
+            state.users.loading = false;
+        })
+        builder.addCase(getUsers.rejected, (state) => {
+            state.users.loading = false;
+        })
     }
 });
 
@@ -179,6 +198,16 @@ export const deleteDepartment = createAsyncThunk('institute/deleteDepartment', a
         throw error;
     }
 });
+
+export const getUsers = createAsyncThunk('institute/getUsers', async (institute: string) => {
+    try {
+        const data = await getUsersFromInstitute(institute);
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+})
 
 //* reducer
 export default instituteSlice.reducer;

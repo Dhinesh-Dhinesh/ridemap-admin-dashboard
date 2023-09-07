@@ -19,3 +19,16 @@ export const formatTimestamp: formatTimestamp = (timestamp) => {
 
   return formattedDate.toUpperCase();
 };
+
+export const extractYearAndMonth = (dateString: string): string => {
+  // Create a Date object from the date string
+  const date = new Date(dateString);
+
+  // Get the year and month from the Date object
+  const year = date.getFullYear();
+  // JavaScript months are zero-based (0 for January, 11 for December)
+  const month = date.toLocaleString('en-US', { month: 'short' });
+
+  // Return the year and month as character like jan as string
+  return `${year} ${month}`;
+}

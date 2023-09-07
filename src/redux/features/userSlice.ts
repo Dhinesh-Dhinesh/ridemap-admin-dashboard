@@ -9,7 +9,6 @@ type initialStateType = {
     loading: boolean,
     user: User | null,
     admin: AdminData | null,
-    isCreateUserLoading: boolean,
 }
 
 //* initial state
@@ -17,7 +16,6 @@ const initialState: initialStateType = {
     loading: true,
     user: null,
     admin: null,
-    isCreateUserLoading: false,
 }
 
 //* slice

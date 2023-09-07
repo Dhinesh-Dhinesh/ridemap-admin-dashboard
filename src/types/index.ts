@@ -24,3 +24,20 @@ export type Departments = string[] | null;
 export type Admins = AdminData & {
     readonly id: string;
 }
+
+export interface UserData {
+    readonly id: number;
+    readonly name: string;
+    readonly fatherName: string;
+    readonly enrollNo: string;
+    readonly department: string;
+    readonly emailOrPhone: string;
+    readonly phone: string;
+    readonly gender: string;
+    readonly city: string;
+    readonly busStop: string;
+    readonly address: string;
+    readonly validUpto: string;
+    readonly createdAt: string | null;
+    readonly lastLoginAt?: string | null;
+}
