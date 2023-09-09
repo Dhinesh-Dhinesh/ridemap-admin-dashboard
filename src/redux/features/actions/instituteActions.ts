@@ -149,6 +149,7 @@ export const getUsersFromInstitute = async (institute: string): Promise<UserData
                 gender: doc.data().gender,
                 city: doc.data().city,
                 busStop: doc.data().busStop,
+                busNo: doc.data().busNo,
                 address: doc.data().address,
                 validUpto: doc.data()?.validUpto ? extractYearAndMonth(doc.data()?.validUpto) : '',
                 createdAt: doc.data()?.createdAt ? formatTimestamp(doc.data()?.createdAt.toDate()) : null,

@@ -97,8 +97,8 @@ const CreateUser: React.FC = () => {
     );
 
     // form
-    const [busNo, setBusNo] = useState<string>()
-    const [busNoCount, setBusNoCount] = useState<number>()
+    const [busNo, setBusNo] = useState<string>('')
+    const [busNoCount, setBusNoCount] = useState<number>(0);
     const [sumbitLoading, setSubmitLoading] = useState<boolean>(false);
     const { handleSubmit, control, setValue, formState, reset } = useForm<FormData>();
 
@@ -412,7 +412,7 @@ const CreateUser: React.FC = () => {
                             )}
                             {
                                 busNoCount !== 0 && (
-                                    <FormHelperText>User Count : {busNoCount}</FormHelperText>
+                                    <FormHelperText sx={{ color: busNoCount >= 48 ? "#ff0000" : ""}}>User Count : {busNoCount}</FormHelperText>
                                 )
                             }
                         </FormControl>

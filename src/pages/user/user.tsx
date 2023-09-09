@@ -41,10 +41,11 @@ const User = () => {
     { field: 'gender', headerName: 'Gender', minWidth: 80 },
     { field: 'city', headerName: 'City', minWidth: 100 },
     { field: 'busStop', headerName: 'Bus Stop', minWidth: 170 },
+    { field: 'busNo', headerName: 'Bus No', minWidth: 120 },
     { field: 'address', headerName: 'Address', minWidth: 200 },
     { field: 'validUpto', headerName: 'Valid Up To', minWidth: 120 },
     { field: 'createdAt', headerName: 'Created At', minWidth: 180 },
-    { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120}
+    { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120 }
   ];
 
   useEffect(() => {
