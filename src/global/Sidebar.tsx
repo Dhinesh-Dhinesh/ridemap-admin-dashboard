@@ -6,11 +6,13 @@ import PersonIcon from '@mui/icons-material/Person';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 // Images
 import logo from '../assets/logo.png';
-import { Link } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { Box, Button } from '@mui/material';
+import { auth } from '../firebase';
 
 type props = {
     isVisible: boolean;
@@ -26,6 +28,17 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
         animation: "outAnimation 270ms ease-out",
         animationFillMode: "forwards"
     };
+
+    const navigate = useNavigate();
+
+    const handleSignout = async () => {
+        try {
+            await auth.signOut(); // Sign out the user
+            navigate('/')
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
+    }
 
     return (
         <Box
@@ -108,6 +121,15 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
                     </SubMenu>
                     <MenuItem icon={<SettingsIcon />} component={<Link to="/settings" />}> Settings </MenuItem>
                 </Menu>
+                <div className='absolute bottom-0 flex justify-center items-center w-full flex-col m-1 text-white'>
+                    <Button sx={{ color: "white" }} startIcon={<LogoutIcon />} onClick={handleSignout}>
+                        {collapsed ? '' : <>
+                            <div className='h-px w-full bg-gray-700 my-2' />
+                            <div className='text-sm text-white ml-3 p-2'>Logout</div>
+                        </>
+                        }
+                    </Button>
+                </div>
             </Sidebar>
         </Box>
     )

@@ -44,6 +44,8 @@ import useApi from '../../util/api';
 
 // Router
 import { useNavigate } from 'react-router-dom';
+import { collection, getCountFromServer, query, where } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const formDataProps = [
     'name',
@@ -95,6 +97,8 @@ const CreateUser: React.FC = () => {
     );
 
     // form
+    const [busNo, setBusNo] = useState<string>()
+    const [busNoCount, setBusNoCount] = useState<number>()
     const [sumbitLoading, setSubmitLoading] = useState<boolean>(false);
     const { handleSubmit, control, setValue, formState, reset } = useForm<FormData>();
 
@@ -182,6 +186,28 @@ const CreateUser: React.FC = () => {
             }
         }
     }, [institute, dispatch]);
+
+    // for get the count of the selected busno
+    useEffect(() => {
+        if (institute) {
+            const getBusNoCount = async () => {
+                try {
+                    const usersCollection = collection(db, `institutes/${institute}/users`);
+                    const q = query(usersCollection, where('busNo', '==', busNo));
+
+                    const snapshot = await getCountFromServer(q);
+                    setBusNoCount(snapshot.data().count);
+                    console.log(snapshot.data().count);
+                } catch (err) {
+                    console.log(err)
+                }
+            }
+
+            getBusNoCount();
+
+
+        }
+    }, [busNo])
 
     return (
         <Box m="20px">
@@ -376,11 +402,19 @@ const CreateUser: React.FC = () => {
                                 id="combo-box-demo"
                                 options={busses as string[] || []}
                                 renderInput={(params: AutocompleteRenderInputParams) => <TextField {...params} label="Bus no" error={!!error} />}
-                                onChange={(_e, newValue) => onChange(newValue as string)}
+                                onChange={(_e, newValue) => {
+                                    onChange(newValue as string)
+                                    setBusNo(newValue as string)
+                                }}
                             />
                             {error && (
                                 <FormHelperText>{error.message}</FormHelperText>
                             )}
+                            {
+                                busNoCount !== 0 && (
+                                    <FormHelperText>User Count : {busNoCount}</FormHelperText>
+                                )
+                            }
                         </FormControl>
                     )}
                     rules={{ required: 'Required' }}
