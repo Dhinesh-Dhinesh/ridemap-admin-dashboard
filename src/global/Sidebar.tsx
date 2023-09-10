@@ -14,6 +14,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Box, Button } from '@mui/material';
 import { auth } from '../firebase';
 
+// MUI
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import { useState } from 'react';
+
 type props = {
     isVisible: boolean;
     activeMenu: string;
@@ -22,6 +30,7 @@ type props = {
 const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
 
     const { collapseSidebar, collapsed } = useProSidebar();
+    const navigate = useNavigate();
 
     const mountedStyle = { animation: "inAnimation 250ms ease-in" };
     const unmountedStyle = {
@@ -29,16 +38,22 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
         animationFillMode: "forwards"
     };
 
-    const navigate = useNavigate();
+    const [logoutDialogOpen, setLogoutDialogOpen] = useState<boolean>(false);
 
-    const handleSignout = async () => {
+    const handleSignout = () => {
+        setLogoutDialogOpen(true);
+    };
+
+    const handleLogoutConfirmed = async () => {
         try {
             await auth.signOut(); // Sign out the user
-            navigate('/')
+            navigate('/');
         } catch (error) {
             console.error('Error signing out:', error);
+        } finally {
+            setLogoutDialogOpen(false); // Close the dialog
         }
-    }
+    };
 
     return (
         <Box
@@ -131,6 +146,35 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
                     </Button>
                 </div>
             </Sidebar>
+            <Dialog
+                open={logoutDialogOpen}
+                onClose={() => setLogoutDialogOpen(false)}
+                PaperProps={{
+                    sx: {
+                        borderRadius: '16px',
+                        backgroundColor: '#ffffff',
+                        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.2)',
+                        p: {
+                            xs: '1rem',
+                        }
+                    },
+                }}
+            >
+                <DialogTitle>Logout</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Are you sure you want to logout?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setLogoutDialogOpen(false)} color="primary">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleLogoutConfirmed} color="primary">
+                        Logout
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     )
 }

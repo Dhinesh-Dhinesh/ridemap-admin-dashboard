@@ -22,11 +22,13 @@ import React, { useEffect, useState } from "react";
 
 //~ Firebase
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase";
+import { auth, db } from "./firebase";
+import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 
 //~ Redux
 import { setUserData, removeUserData, getAdminData } from "./redux/features/userSlice";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
+
 
 
 
@@ -90,6 +92,17 @@ const App: React.FC = () => {
 
           // Get admin user data from firestore if the data isn't in redux store
           if (adminData === null) {
+            // update the lastLoginAt field in firestore
+            const docRef = doc(db, 'institutes/smvec/admins', user.uid);
+
+
+            updateDoc(docRef, {
+              lastLoginAt: serverTimestamp()
+            })
+              .catch((error) => {
+                console.error('Error updating document: ', error);
+              });
+
             dispatch(getAdminData([institute, user.uid]))
           }
         })
