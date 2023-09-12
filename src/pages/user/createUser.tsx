@@ -120,6 +120,7 @@ const CreateUser: React.FC = () => {
                     message: "User created successfully",
                     severity: "success",
                 })
+                setBusNo('')
                 reset();
             }
         }).catch(err => {
@@ -202,6 +203,8 @@ const CreateUser: React.FC = () => {
                     console.log(err)
                 }
             }
+
+            setBusNoCount(0)
 
             getBusNoCount();
 
@@ -395,7 +398,7 @@ const CreateUser: React.FC = () => {
                     name="busNo"
                     control={control}
                     defaultValue=""
-                    render={({ field: { onChange }, fieldState: { error } }) => (
+                    render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <FormControl fullWidth error={!!error} sx={{ gridColumn: "span 1" }}>
                             <Autocomplete
                                 disablePortal
@@ -406,13 +409,14 @@ const CreateUser: React.FC = () => {
                                     onChange(newValue as string)
                                     setBusNo(newValue as string)
                                 }}
+                                value={value}
                             />
                             {error && (
                                 <FormHelperText>{error.message}</FormHelperText>
                             )}
                             {
                                 busNoCount !== 0 && (
-                                    <FormHelperText sx={{ color: busNoCount >= 48 ? "#ff0000" : ""}}>User Count : {busNoCount}</FormHelperText>
+                                    <FormHelperText sx={{ color: busNoCount >= 48 ? "#ff0000" : "" }}>User Count : {busNoCount}</FormHelperText>
                                 )
                             }
                         </FormControl>
@@ -423,7 +427,7 @@ const CreateUser: React.FC = () => {
                     name="department"
                     control={control}
                     defaultValue=""
-                    render={({ field: { onChange }, fieldState: { error } }) => (
+                    render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <FormControl fullWidth error={!!error} sx={{ gridColumn: "span 1" }}>
                             <Autocomplete
                                 disablePortal
@@ -431,6 +435,7 @@ const CreateUser: React.FC = () => {
                                 options={departments as string[] || []}
                                 renderInput={(params: AutocompleteRenderInputParams) => <TextField {...params} label="Department" error={!!error} />}
                                 onChange={(_e, newValue) => onChange(newValue as string)}
+                                value={value}
                             />
                             {error && (
                                 <FormHelperText>{error.message}</FormHelperText>
@@ -443,7 +448,7 @@ const CreateUser: React.FC = () => {
                     name="validUpto"
                     defaultValue=""
                     control={control}
-                    render={({ field: { onChange }, fieldState: { error } }) => (
+                    render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                                 label={'Valid upto'}
@@ -458,6 +463,7 @@ const CreateUser: React.FC = () => {
                                         helperText: error ? error.message : null,
                                     },
                                 }}
+                                value={value}
                             />
                         </LocalizationProvider>
                     )}
