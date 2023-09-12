@@ -28,6 +28,7 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 //~ Redux
 import { setUserData, removeUserData, getAdminData } from "./redux/features/userSlice";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
+import SearchUser from "./pages/user/searchUser";
 
 
 
@@ -131,6 +132,7 @@ const App: React.FC = () => {
                 <Route path="/create-admin" element={<CreateAdmin />} />
                 <Route path="/users" element={<User />} />
                 <Route path="/create-user" element={<CreateUser />} />
+                <Route path="/search-user" element={<SearchUser />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
             </Routes>

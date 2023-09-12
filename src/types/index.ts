@@ -38,6 +38,6 @@ export interface UserData {
     readonly busStop: string;
     readonly address: string;
     readonly validUpto: string;
-    readonly createdAt: string | null;
-    readonly lastLoginAt?: string | null;
+    readonly createdAt: any;
+    readonly lastLoginAt?: any;
 }
