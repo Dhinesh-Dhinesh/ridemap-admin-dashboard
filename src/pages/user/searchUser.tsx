@@ -114,6 +114,10 @@ const SearchUser = () => {
                                 <p>{userData.busStop}</p>
                             </div>
                             <div className="bg-gray-100 p-4">
+                                <p className="font-semibold">Bus No:</p>
+                                <p>{userData.busNo}</p>
+                            </div>
+                            <div className="bg-gray-100 p-4">
                                 <p className="font-semibold">Address:</p>
                                 <p>{userData.address}</p>
                             </div>

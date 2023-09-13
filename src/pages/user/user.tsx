@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 
 // MUI
-import { DataGrid, GridColDef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
 
 // custom mui
@@ -86,10 +86,10 @@ const User = () => {
           slots={{
             loadingOverlay: LinearProgress,
             noRowsOverlay: CustomNoRowsOverlay,
+            toolbar: GridToolbar
           }}
           pageSizeOptions={[5, 10, 20, 50, 100]}
           disableRowSelectionOnClick
-          disableColumnSelector
         />
       </Box>
     </Box>

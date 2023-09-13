@@ -36,6 +36,7 @@ export interface UserData {
     readonly gender: string;
     readonly city: string;
     readonly busStop: string;
+    readonly busNo: string;
     readonly address: string;
     readonly validUpto: string;
     readonly createdAt: any;

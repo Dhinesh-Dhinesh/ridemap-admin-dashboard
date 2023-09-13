@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../redux/hooks';
 import CircularProgress from '@mui/material/CircularProgress';
+import { IconButton, InputAdornment } from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 type FormData = {
     Email: string;
@@ -18,6 +20,12 @@ const Login: React.FC = () => {
     const { register, handleSubmit, formState: { errors }, setError } = useForm<FormData>();
 
     const [localLoading, setLocalLoading] = useState<boolean>(false);
+
+    const [showPassword, setShowPassword] = useState(false);
+
+    const handleTogglePasswordVisibility = () => {
+        setShowPassword((prev) => !prev);
+    };
 
     const onSubmit: SubmitHandler<FormData> = (data) => {
         setLocalLoading(true)
@@ -110,14 +118,24 @@ const Login: React.FC = () => {
                             >
                                 Password
                             </label>
-                            <input
-                                type="password"
-                                {...register("Password", { required: true, pattern: /^.{8,}$/i })}
-                                className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
-                            />
-                            {errors?.Password?.type === "required" && <p className='text-red-600 text-sm mt-2'>* required</p>}
-                            {errors?.Password?.type === "pattern" && <p className='text-red-600 text-sm mt-2'>* Password need to be eight characters long.</p>}
-                            {errors?.Password?.type === "wrong-password" && <p className='text-red-600 text-sm mt-2'>* Wrong password.</p>}
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    {...register("Password", { required: true, pattern: /^.{8,}$/i })}
+                                    className="block w-full px-4 py-2 mt-2 text-purple-700 bg-white border rounded-md focus:border-purple-400 focus:ring-purple-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                                />
+                                <InputAdornment position="end" className="absolute top-5 right-4">
+                                    <IconButton
+                                        onClick={handleTogglePasswordVisibility}
+                                        edge="end"
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                                {errors?.Password?.type === "required" && <p className='text-red-600 text-sm mt-2'>* required</p>}
+                                {errors?.Password?.type === "pattern" && <p className='text-red-600 text-sm mt-2'>* Password need to be eight characters long.</p>}
+                                {errors?.Password?.type === "wrong-password" && <p className='text-red-600 text-sm mt-2'>* Wrong password.</p>}
+                            </div>
                         </div>
                         <a
                             href="#"
