@@ -8,6 +8,11 @@ import { getInstituteAdmins, getInstituteDepartments, getInstituteBusses, addIns
 import type { PayloadAction } from '@reduxjs/toolkit';
 import type { Departments, Admins, UserData } from '../../types';
 
+type BusUserCount = {
+    busName: string;
+    userCount: number;
+}
+
 type initialStateType = {
     busses: string[] | null,
     loadingStates: {
@@ -22,7 +27,8 @@ type initialStateType = {
     users: {
         data: UserData[] | null,
         loading: boolean,
-    }
+    },
+    busUserCount: BusUserCount[] | null
 }
 
 //* initial state
@@ -40,14 +46,19 @@ const initialState: initialStateType = {
     users: {
         data: null,
         loading: false,
-    }
+    },
+    busUserCount: null
 }
 
 //* slice
 export const instituteSlice = createSlice({
     name: 'institute',
     initialState,
-    reducers: {},
+    reducers: {
+        setBusUserCount: (state, action: PayloadAction<BusUserCount[] | null>) => {
+            state.busUserCount = action.payload;
+        }
+    },
     extraReducers: (builder) => {
         // getAdmins
         builder.addCase(getAdmins.pending, (state) => {
@@ -208,6 +219,9 @@ export const getUsers = createAsyncThunk('institute/getUsers', async (institute:
         throw error;
     }
 })
+
+//* action
+export const { setBusUserCount } = instituteSlice.actions;
 
 //* reducer
 export default instituteSlice.reducer;
