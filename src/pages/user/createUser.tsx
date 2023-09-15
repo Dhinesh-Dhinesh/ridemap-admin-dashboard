@@ -415,8 +415,10 @@ const CreateUser: React.FC = () => {
                                 <FormHelperText>{error.message}</FormHelperText>
                             )}
                             {
-                                busNoCount !== 0 && (
-                                    <FormHelperText sx={{ color: busNoCount >= 48 ? "#ff0000" : "" }}>User Count : {busNoCount}</FormHelperText>
+                                (busNoCount !== 0 && busNoCount >= 48) ? (
+                                    <FormHelperText sx={{ color: "#ff0000" }}>Bus No {value} has {busNoCount} passengers, you should modify the bus number if possible.</FormHelperText>
+                                ) : (
+                                    <FormHelperText>User Count : {busNoCount}</FormHelperText>
                                 )
                             }
                         </FormControl>
