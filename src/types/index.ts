@@ -26,7 +26,7 @@ export type Admins = AdminData & {
 }
 
 export interface UserData {
-    readonly id: number;
+    readonly id: number | string;
     readonly name: string;
     readonly fatherName: string;
     readonly enrollNo: string;
@@ -41,4 +41,8 @@ export interface UserData {
     readonly validUpto: string;
     readonly createdAt: any;
     readonly lastLoginAt?: any;
+}
+
+export type BusUsersDatas = {
+    [key: string]: UserData[] | null
 }

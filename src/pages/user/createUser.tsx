@@ -43,6 +43,7 @@ import useApi from '../../util/api';
 // Router
 import { collection, getCountFromServer, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
+import dayjs from 'dayjs';
 
 const formDataProps = [
     'name',
@@ -96,7 +97,7 @@ const CreateUser: React.FC = () => {
     const [busNo, setBusNo] = useState<string>('')
     const [busNoCount, setBusNoCount] = useState<number>(0);
     const [sumbitLoading, setSubmitLoading] = useState<boolean>(false);
-    const { handleSubmit, control, setValue, formState, reset } = useForm<FormData>();
+    const { handleSubmit, control, setValue, formState, reset, setError } = useForm<FormData>();
 
     const onSubmit: SubmitHandler<FormData> = (formData) => {
 
@@ -448,7 +449,25 @@ const CreateUser: React.FC = () => {
                                 views={['month', 'year']}
                                 disablePast={true}
                                 onChange={(newValue) => {
-                                    onChange(newValue?.toString() ?? '');
+                                    if (newValue === null) {
+                                        // Handle empty input
+                                        onChange('');
+                                        return;
+                                    }
+
+                                    // Convert newValue to a dayjs date object for comparison
+                                    const selectedDate = dayjs(newValue);
+
+                                    if (selectedDate.isBefore(dayjs(), 'date')) {
+                                        // If the selected date is in the past, handle it as needed (e.g., show an error)
+                                        // onChange(''); // Clear the input or handle it as needed
+                                        setError('validUpto', {
+                                            type: 'manual',
+                                            message: 'Year and month must not be in the past.',
+                                        });
+                                    } else {
+                                        onChange(newValue?.toString() ?? ''); // Update the state with the valid date
+                                    }
                                 }}
                                 slotProps={{
                                     textField: {

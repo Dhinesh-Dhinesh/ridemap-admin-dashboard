@@ -1,4 +1,4 @@
-import { Box } from "@mui/material"
+import { Box, CardActionArea } from "@mui/material"
 import {
   Card,
   CardContent,
@@ -11,6 +11,7 @@ import { db } from "../../firebase";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
 import { getBusses, setBusUserCount } from "../../redux/features/instituteSlice";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
 
@@ -23,6 +24,7 @@ const Dashboard = () => {
   }, shallowEqual);
 
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
 
@@ -78,22 +80,24 @@ const Dashboard = () => {
         <h4 className="text-l font-semibold mt-3 ml-0.5">Welcome to your dashboard</h4>
       </div>
 
-    <div>
-      <h1 className="text-2xl font-bold mb-5">Bus User Count</h1>
-    </div>
+      <div>
+        <h1 className="text-2xl font-bold mb-5">Bus User Count</h1>
+      </div>
 
       <Grid container spacing={2}>
         {busUserCounts ? busUserCounts.map((busUserCount, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>
             <Card>
-              <CardContent>
-                <Typography variant="subtitle1" component="div">
-                  Bus no: {busUserCount.busName}
-                </Typography>
-                <Typography variant="body2" color={busUserCount.userCount >= 48 ? "#ff0000" : "text.secondary"}>
-                  User Count: {busUserCount.userCount}
-                </Typography>
-              </CardContent>
+              <CardActionArea onClick={() => navigate(`/bus-users/${busUserCount.busName}`)}>
+                <CardContent>
+                  <Typography variant="subtitle1" component="div">
+                    Bus no: {busUserCount.busName}
+                  </Typography>
+                  <Typography variant="body2" color={busUserCount.userCount >= 48 ? "#ff0000" : "text.secondary"}>
+                    User Count: {busUserCount.userCount}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
             </Card>
           </Grid>
         )) : (

@@ -29,6 +29,7 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { setUserData, removeUserData, getAdminData } from "./redux/features/userSlice";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import SearchUser from "./pages/user/searchUser";
+import BusUsers from "./pages/dashboard/busUsers";
 
 
 
@@ -128,6 +129,7 @@ const App: React.FC = () => {
               {/* Protected Routes */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/bus-users/:busId" element={<BusUsers />} />
                 <Route path="/admin" element={<Admin />} />
                 <Route path="/create-admin" element={<CreateAdmin />} />
                 <Route path="/users" element={<User />} />
