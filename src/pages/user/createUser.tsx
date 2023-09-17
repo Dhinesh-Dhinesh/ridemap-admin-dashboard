@@ -20,11 +20,9 @@ import Zoom from '@mui/material/Zoom';
 
 // mui icons
 import InfoIcon from '@mui/icons-material/Info';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 
 // mui customs
-import { BaseButton } from '../../components/BaseButton';
 import SnackBar from '../../components/SnackBar';
 
 // Date Picker
@@ -43,7 +41,6 @@ import { shallowEqual } from 'react-redux';
 import useApi from '../../util/api';
 
 // Router
-import { useNavigate } from 'react-router-dom';
 import { collection, getCountFromServer, query, where } from 'firebase/firestore';
 import { db } from '../../firebase';
 
@@ -75,7 +72,6 @@ type snackBar = {
 const CreateUser: React.FC = () => {
 
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const navigate = useNavigate();
     const api = useApi();
 
     const [snackBar, setSnackBar] = useState<snackBar>({
@@ -214,18 +210,10 @@ const CreateUser: React.FC = () => {
 
     return (
         <Box m="20px">
-            <Box display="flex" justifyContent="space-between" alignItems="center">
-                <div className='mb-4'>
-                    <h1 className="text-3xl font-bold">Create User</h1>
-                    <h4 className="text-l font-semibold mt-3 ml-0.5">Create a new user profile</h4>
-                </div>
-                <BaseButton onClick={() => navigate("/users")}>
-                    <div className="flex justify-center items-center">
-                        <ArrowBackIosIcon fontSize="small" />
-                        <p>Back</p>
-                    </div>
-                </BaseButton>
-            </Box>
+            <div className='mb-4'>
+                <h1 className="text-3xl font-bold">Create User</h1>
+                <h4 className="text-l font-semibold mt-3 ml-0.5">Create a new user profile</h4>
+            </div>
             <Box
                 component="form"
                 display="grid"
@@ -417,9 +405,12 @@ const CreateUser: React.FC = () => {
                             {
                                 (busNoCount !== 0 && busNoCount >= 48) ? (
                                     <FormHelperText sx={{ color: "#ff0000" }}>Bus No {value} has {busNoCount} passengers, you should modify the bus number if possible.</FormHelperText>
-                                ) : (
+                                ) : null
+                            }
+                            {
+                                (busNoCount !== 0 && busNoCount < 48) ? (
                                     <FormHelperText>User Count : {busNoCount}</FormHelperText>
-                                )
+                                ) : null
                             }
                         </FormControl>
                     )}

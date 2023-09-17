@@ -1,8 +1,8 @@
-import { Box, TextField } from "@mui/material"
+import { Box, Skeleton, TextField } from "@mui/material"
 import { styled } from '@mui/material/styles';
 import Chip from '@mui/material/Chip';
 import Paper from '@mui/material/Paper';
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { shallowEqual } from "react-redux";
 import { addBusses, addDepartment, deleteBusNo, deleteDepartment, getBusses, getDepartments } from "../../redux/features/instituteSlice";
@@ -54,7 +54,7 @@ const Settings = () => {
     };
 
     // For setting value of departments and busses in chip data
-    useEffect(() => {
+    useLayoutEffect(() => {
         setBussesChipData(busses?.map((bus, index) => {
             return { key: index, label: bus }
         }).sort((a, b) => a.label.localeCompare(b.label)));
@@ -90,7 +90,7 @@ const Settings = () => {
 
                 {/* Busses */}
 
-                <div className="text-md font-semibold mb-2">Busses</div>
+                <div className="text-md font-semibold mb-2">Busses : {bussesChipData?.length ? bussesChipData?.length : 0}</div>
                 <Paper
                     sx={{
                         display: 'flex',
@@ -103,7 +103,7 @@ const Settings = () => {
                     }}
                     component="ul"
                 >
-                    {bussesChipData && bussesChipData.map((data) => {
+                    {bussesChipData ? bussesChipData.map((data) => {
                         return (
                             <ListItem key={data.key}>
                                 <Chip
@@ -112,7 +112,16 @@ const Settings = () => {
                                 />
                             </ListItem>
                         );
-                    })}
+                    }) :
+                        [...Array(40)].map((key) => (
+                            <ListItem key={key}>
+                                <Skeleton variant="rounded" width={100} height={32} sx={{
+                                    borderRadius: "1rem",
+                                }} />
+                            </ListItem>
+                        ))
+
+                    }
                 </Paper>
                 <TextField
                     id="outlined-basic"
@@ -149,7 +158,7 @@ const Settings = () => {
                     }}
                     component="ul"
                 >
-                    {depChipData && depChipData.map((data) => {
+                    {depChipData ? depChipData.map((data) => {
                         return (
                             <ListItem key={data.key}>
                                 <Chip
@@ -158,7 +167,15 @@ const Settings = () => {
                                 />
                             </ListItem>
                         );
-                    })}
+                    }) :
+                        [...Array(40)].map((key) => (
+                            <ListItem key={key}>
+                                <Skeleton variant="rounded" width={100} height={32} sx={{
+                                    borderRadius: "1rem",
+                                }} />
+                            </ListItem>
+                        ))
+                    }
                 </Paper>
                 <TextField
                     id="outlined-basic"

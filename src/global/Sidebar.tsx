@@ -7,6 +7,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 
 // Images
@@ -98,7 +99,7 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
                             if (level === 0)
                                 return {
                                     color: active ? '#ffffff' : '#aab3c5',
-                                    backgroundColor: active ? '#1f2937' : '#ffffff0d',
+                                    backgroundColor: active ? '#1f2937' : '#1f2937',
                                     transition: 'all 0.2s ease-in-out',
                                     '.ps-menu-button': {
                                         backgroundColor: '#ffffff0d',
@@ -111,7 +112,6 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
                         },
                         root: {
                             '.ps-menu-button:hover': {
-                                backgroundColor: '#ffffff0d',
                                 '&:hover': {
                                     backgroundColor: '#1f2937',
                                     animation: 'text-animation 0.8s ease-in-out',
@@ -129,12 +129,12 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
                     <MenuItem icon={<AdminPanelSettingsIcon />} component={<Link to="/admin" />}> Admin </MenuItem>
                     <SubMenu
                         label="Users"
-                        component={<Link to="/users" />}
                         icon={<PersonIcon />}
-                        active={activeMenu === "/create-user"}
+                        active={["/create-user", "/search-user", "/users"].includes(activeMenu)}
                     >
                         <MenuItem suffix={<AddCircleIcon />} component={<Link to="/create-user" />}> Create user </MenuItem>
                         <MenuItem suffix={<PersonSearchIcon />} component={<Link to="/search-user" />}> Search user </MenuItem>
+                        <MenuItem suffix={<InsertDriveFileIcon />} component={<Link to="/users" />}> User records </MenuItem>
                     </SubMenu>
                     <MenuItem icon={<SettingsIcon />} component={<Link to="/settings" />}> Settings </MenuItem>
                 </Menu>

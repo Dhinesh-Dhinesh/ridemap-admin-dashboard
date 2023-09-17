@@ -74,22 +74,33 @@ const User = () => {
           loading={userDataGridLoading}
           rows={usersData as UserData[] || []}
           columns={columns}
+          pageSizeOptions={[5, 10, 20, 50, 100]}
+          disableRowSelectionOnClick
           initialState={{
             pagination: {
-              paginationModel: { page: 0, pageSize: 20 },
+              paginationModel: { page: 0, pageSize: 50 },
             },
             sorting: {
               sortModel: [{ field: 'createdAt', sort: 'desc' }]
             }
           }}
-
           slots={{
             loadingOverlay: LinearProgress,
             noRowsOverlay: CustomNoRowsOverlay,
             toolbar: GridToolbar
           }}
-          pageSizeOptions={[5, 10, 20, 50, 100]}
-          disableRowSelectionOnClick
+          slotProps={{
+            toolbar: {
+              showQuickFilter: true,
+            }
+          }}
+          localeText={{
+            toolbarDensity: 'Size',
+            toolbarDensityLabel: 'Size',
+            toolbarDensityCompact: 'Small',
+            toolbarDensityStandard: 'Medium',
+            toolbarDensityComfortable: 'Large',
+          }}
         />
       </Box>
     </Box>
