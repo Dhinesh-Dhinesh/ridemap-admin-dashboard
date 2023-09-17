@@ -1,5 +1,5 @@
 import { Box, LinearProgress } from '@mui/material'
-import { json, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { BaseButton } from '../../components/BaseButton'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { useAppSelector } from '../../redux/hooks'
@@ -7,7 +7,7 @@ import { db } from '../../firebase'
 import { UserData } from '../../types'
 import { useEffect, useState } from 'react'
 import { extractYearAndMonth, formatTimestamp } from '../../util/dateFormatter'
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import CustomNoRowsOverlay from '../../components/CustomNoOverlay'
 
 const BusUsers = () => {
@@ -17,6 +17,7 @@ const BusUsers = () => {
 
     const institute = useAppSelector(state => state.auth.user?.institute)
     const [busUserData, setBusUserData] = useState<UserData[] | null>(null)
+    const [loading, setLoading] = useState<boolean>(false)
 
     const columns: GridColDef[] = [
         { field: 'name', headerName: 'Name', minWidth: 150 },
@@ -36,6 +37,8 @@ const BusUsers = () => {
     ];
 
     const getBusUsersData = async () => {
+        setLoading(true)
+
         const usersCollection = collection(db, `institutes/${institute as string}/users`);
         const q = query(usersCollection, where('busNo', '==', busId));
 
@@ -67,7 +70,10 @@ const BusUsers = () => {
             } else {
                 setBusUserData(null);
             }
+
+            setLoading(false)
         } catch (error) {
+            setLoading(false)
             console.error('Error fetching bus user data:', error);
         }
     }
@@ -81,7 +87,7 @@ const BusUsers = () => {
             <Box display="flex" justifyContent="space-between" alignItems="center">
                 <div className='mb-4'>
                     <h1 className="text-3xl font-bold">Bus Users</h1>
-                    <h4 className="text-l font-semibold mt-3 ml-0.5">Bus no {busId} users</h4>
+                    <h4 className="text-l font-semibold mt-3 ml-0.5">{busId} has {busUserData ? busUserData.length : 0} users</h4>
                 </div>
                 <BaseButton onClick={() => navigate("/dashboard")}>
                     Back
@@ -89,7 +95,7 @@ const BusUsers = () => {
             </Box>
             <Box m="8px 0 0 0" height="80vh">
                 <DataGrid
-                    loading={!busUserData}
+                    loading={loading}
                     rows={busUserData || []}
                     columns={columns}
                     pageSizeOptions={[5, 10, 20, 50, 100]}
@@ -105,11 +111,14 @@ const BusUsers = () => {
                     slots={{
                         loadingOverlay: LinearProgress,
                         noRowsOverlay: CustomNoRowsOverlay,
-                        toolbar: GridToolbar
+                        toolbar: () => CustomToolbar(busId as string)
                     }}
                     slotProps={{
                         toolbar: {
                             showQuickFilter: true,
+                            csvOptions: {
+                                exportFileName: 'your_custom_file_name' // Specify your custom export file name here
+                            }
                         }
                     }}
                     localeText={{
@@ -123,6 +132,20 @@ const BusUsers = () => {
             </Box>
         </Box>
     )
+}
+
+function CustomToolbar(busId: string) {
+    return (
+        <GridToolbarContainer sx={{ display: 'flex', justifyContent: "space-between" }}>
+            <Box>
+                <GridToolbarColumnsButton />
+                <GridToolbarFilterButton />
+                <GridToolbarDensitySelector />
+                <GridToolbarExport csvOptions={{ fileName: `${busId} users_Ridemap` }} />
+            </Box>
+            <GridToolbarQuickFilter />
+        </GridToolbarContainer>
+    );
 }
 
 export default BusUsers
