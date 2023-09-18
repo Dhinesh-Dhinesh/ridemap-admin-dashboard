@@ -89,8 +89,8 @@ const Dashboard = () => {
 
       <Grid container spacing={2}>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card variant="outlined" className="box-container">
+        <Grid item xs={12} sm={6} md={3} display={"flex"}>
+          <Card raised className="box-container grow">
             <Box m="0 30px" p="12px 0" display={"flex"} justifyContent={"space-between"} className="xl:h-32 md:h-36 sm:h-44">
               <Box display="flex" flexDirection="column">
                 <Typography variant="h6" fontWeight="bold">
@@ -115,8 +115,8 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={6}>
-          <Card variant="outlined" className="box-container">
+        <Grid item xs={12} sm={6} md={6} display={"flex"}>
+          <Card raised className="box-container grow">
             <Box
               m="0 30px"
               p="12px 0"
@@ -161,8 +161,8 @@ const Dashboard = () => {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card variant="outlined" className="box-container">
+        <Grid item xs={12} sm={6} md={3} display={"flex"}>
+          <Card raised className="box-container grow">
             <Box m="0 30px" p="12px 0" display={"flex"} justifyContent={"space-between"} className="xl:h-32 md:h-36 sm:h-44">
               <Box display="flex" flexDirection="column">
                 <Typography variant="h6" fontWeight="bold">
@@ -195,8 +195,8 @@ const Dashboard = () => {
 
       <Grid container spacing={2}>
         {busUserCounts ? busUserCounts.map((busUserCount, index) => (
-          <Grid item xs={12} sm={6} md={3} key={index}>
-            <Card>
+          <Grid item xs={12} sm={6} md={3} key={index} className="flex">
+            <Card className="grow">
               <CardActionArea onClick={() => navigate(`/bus-users/${busUserCount.busName}`)}>
                 <CardContent>
                   <Typography variant="subtitle1" component="div">
@@ -214,13 +214,9 @@ const Dashboard = () => {
             <Grid item xs={12} sm={6} md={3} key={index}>
               <Card>
                 <CardContent>
-                  <div className="animate-pulse"> {/* Add Tailwind CSS classes for the skeleton effect */}
-                    <Typography variant="subtitle1" component="div">
-                      <div className="bg-gray-200 h-5 w-[50%] mb-2"></div> {/* Customize the skeleton appearance */}
-                    </Typography>
-                    <Typography variant="body2">
-                      <div className="bg-gray-200 h-5 w-[35%]"></div> {/* Customize the skeleton appearance */}
-                    </Typography>
+                  <div className="animate-pulse">
+                    <div className="bg-gray-200 h-5 w-[50%] mb-2"></div>
+                    <div className="bg-gray-200 h-5 w-[35%]"></div>
                   </div>
                 </CardContent>
               </Card>
