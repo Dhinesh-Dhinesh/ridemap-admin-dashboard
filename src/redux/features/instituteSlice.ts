@@ -28,7 +28,8 @@ type initialStateType = {
         data: UserData[] | null,
         loading: boolean,
     },
-    busUserCount: BusUserCount[] | null
+    busUserCount: BusUserCount[] | null,
+    maleGenderCount: number
 }
 
 //* initial state
@@ -47,7 +48,8 @@ const initialState: initialStateType = {
         data: null,
         loading: false,
     },
-    busUserCount: null
+    busUserCount: null,
+    maleGenderCount: 0
 }
 
 //* slice
@@ -57,6 +59,9 @@ export const instituteSlice = createSlice({
     reducers: {
         setBusUserCount: (state, action: PayloadAction<BusUserCount[] | null>) => {
             state.busUserCount = action.payload;
+        },
+        setMaleGenderCount: (state, action: PayloadAction<number>) => {
+            state.maleGenderCount = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -221,7 +226,7 @@ export const getUsers = createAsyncThunk('institute/getUsers', async (institute:
 })
 
 //* action
-export const { setBusUserCount } = instituteSlice.actions;
+export const { setBusUserCount, setMaleGenderCount } = instituteSlice.actions;
 
 //* reducer
 export default instituteSlice.reducer;

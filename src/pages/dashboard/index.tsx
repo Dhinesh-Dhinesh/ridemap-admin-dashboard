@@ -1,4 +1,4 @@
-import { Box, CardActionArea } from "@mui/material"
+import { Box, CardActionArea, Skeleton } from "@mui/material"
 import {
   Card,
   CardContent,
@@ -10,16 +10,21 @@ import { collection, getCountFromServer, query, where } from "firebase/firestore
 import { db } from "../../firebase";
 import { shallowEqual } from "react-redux";
 import { useEffect } from "react";
-import { getBusses, setBusUserCount } from "../../redux/features/instituteSlice";
+import { getBusses, setBusUserCount, setMaleGenderCount } from "../../redux/features/instituteSlice";
 import { useNavigate } from "react-router-dom";
+import MaleIcon from '@mui/icons-material/Male';
+import FemaleIcon from '@mui/icons-material/Female';
+import PersonIcon from '@mui/icons-material/Person';
+import DirectionsBusRoundedIcon from '@mui/icons-material/DirectionsBusRounded';
 
 const Dashboard = () => {
 
-  const { busNo, institute, busUserCounts } = useAppSelector(state => {
+  const { busNo, institute, busUserCounts, maleGenderCount } = useAppSelector(state => {
     return {
       busNo: state.institute.busses,
       institute: state.auth.admin?.institute,
-      busUserCounts: state.institute?.busUserCount
+      busUserCounts: state.institute?.busUserCount,
+      maleGenderCount: state.institute?.maleGenderCount
     }
   }, shallowEqual);
 
@@ -34,29 +39,30 @@ const Dashboard = () => {
 
         if (!!busUserCounts) return;
 
-        const data = await Promise.all(busNo.map(async (code) => {
-          const getBusNoCount = async (busNumber: string): Promise<number> => {
-            try {
-              const usersCollection = collection(db, `institutes/${institute}/users`);
-              const q = query(usersCollection, where('busNo', '==', busNumber));
+        const getCount = async (whereFieldPath: string, whereValue: string): Promise<number> => {
+          try {
+            const usersCollection = collection(db, `institutes/${institute}/users`);
+            const q = query(usersCollection, where(whereFieldPath, '==', whereValue));
 
-              const snapshot = await getCountFromServer(q);
+            const snapshot = await getCountFromServer(q);
 
-              console.log(`User count for ${busNumber}:`, snapshot.data().count);
-
-              return snapshot.data().count;
-            } catch (err) {
-              console.error(err);
-              return 0; // Handle the error appropriately, e.g., return 0 for the count.
-            }
+            return snapshot.data().count;
+          } catch (err) {
+            console.error(err);
+            return 0; // Handle the error appropriately, e.g., return 0 for the count.
           }
+        }
 
+        const data = await Promise.all(busNo.map(async (code) => {
           return {
             busName: code,
-            userCount: await getBusNoCount(code)
+            userCount: await getCount('busNo', code)
           };
         }));
 
+        const genderMaleCount = await getCount('gender', 'Male')
+
+        dispatch(setMaleGenderCount(genderMaleCount));
         dispatch(setBusUserCount(data));
       }
     }
@@ -72,6 +78,7 @@ const Dashboard = () => {
 
   }, [busNo, institute, dispatch]);
 
+  const totalStudents = busUserCounts ? busUserCounts.reduce((prev, curr) => prev + curr.userCount, 0) : 0
 
   return (
     <Box m="20px">
@@ -80,8 +87,110 @@ const Dashboard = () => {
         <h4 className="text-l font-semibold mt-3 ml-0.5">Welcome to your dashboard</h4>
       </div>
 
+      <Grid container spacing={2}>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card variant="outlined" className="box-container">
+            <Box m="0 30px" p="12px 0" display={"flex"} justifyContent={"space-between"} className="xl:h-32 md:h-36 sm:h-44">
+              <Box display="flex" flexDirection="column">
+                <Typography variant="h6" fontWeight="bold">
+                  Total Students
+                </Typography>
+                {totalStudents ? (
+                  <Typography variant="h4" fontWeight="bold" mt={2}>
+                    {totalStudents}
+                  </Typography>
+                ) : (
+                  <Skeleton width={100} height={30} />
+                )}
+              </Box>
+              <Box display={"flex"} alignItems={"center"}>
+                {totalStudents ? (
+                  <PersonIcon sx={{ fontSize: 40 }} />
+                ) : (
+                  <Skeleton variant="circular" width={40} height={40} />
+                )}
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={6}>
+          <Card variant="outlined" className="box-container">
+            <Box
+              m="0 30px"
+              p="12px 0"
+              display="flex"
+              justifyContent="space-between"
+              className="xl:h-32 md:h-36 sm:h-44"
+            >
+              <Box display="flex" flexDirection="column">
+                <Typography variant="h6" fontWeight="bold">
+                  Gender Ratio
+                </Typography>
+                {totalStudents ? (
+                  <Box display="flex" alignItems="center" className="max-[445px]:flex-col">
+                    <Box fontWeight="bold" p={1} mt={1}>
+                      <p className="text-3xl max-[445px]:text-xl">M: {maleGenderCount}<span className="text-xs ml-2 text-blue-500">{((maleGenderCount / totalStudents) * 100).toFixed(2)}%</span></p>
+                    </Box>
+                    <Box fontWeight="bold" p={1} mt={1}>
+                      <p className="text-3xl max-[445px]:text-xl">F: {totalStudents - maleGenderCount}<span className="text-xs ml-2 text-pink-500">{(((totalStudents - maleGenderCount) / totalStudents) * 100).toFixed(2)}%</span></p>
+                    </Box>
+                  </Box>
+                ) : (
+                  <Box display="flex" alignItems="center" className="max-[445px]:flex-col">
+                    <Skeleton variant="text" width={200} height={32} />
+                    <Skeleton variant="text" width={200} height={32} />
+                  </Box>
+                )}
+              </Box>
+              <Box display="flex" alignItems="center">
+                {totalStudents ? (
+                  <>
+                    <MaleIcon sx={{ fontSize: 40 }} />
+                    <FemaleIcon sx={{ fontSize: 40 }} />
+                  </>
+                ) : (
+                  <Box display="flex" alignItems="center">
+                    <Skeleton variant="circular" width={40} height={40} />
+                    <Skeleton variant="circular" width={40} height={40} />
+                  </Box>
+                )}
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={3}>
+          <Card variant="outlined" className="box-container">
+            <Box m="0 30px" p="12px 0" display={"flex"} justifyContent={"space-between"} className="xl:h-32 md:h-36 sm:h-44">
+              <Box display="flex" flexDirection="column">
+                <Typography variant="h6" fontWeight="bold">
+                  Number of Buses
+                </Typography>
+                {busUserCounts !== null ? (
+                  <Typography variant="h4" fontWeight="bold" mt={2}>
+                    {busUserCounts.length}
+                  </Typography>
+                ) : (
+                  <Skeleton variant="text" width={120} height={32} />
+                )}
+              </Box>
+              <Box display={"flex"} alignItems={"center"}>
+                {busUserCounts !== null ? (
+                  <DirectionsBusRoundedIcon sx={{ fontSize: 40 }} />
+                ) : (
+                  <Skeleton variant="circular" width={40} height={40} />
+                )}
+              </Box>
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Bus User Count */}
       <div>
-        <h1 className="text-2xl font-bold mb-5">Bus User Count</h1>
+        <h1 className="text-2xl font-bold mb-5 mt-5">Bus User Count</h1>
       </div>
 
       <Grid container spacing={2}>
@@ -120,7 +229,7 @@ const Dashboard = () => {
         )
         }
       </Grid>
-    </Box>
+    </Box >
   )
 }
 
