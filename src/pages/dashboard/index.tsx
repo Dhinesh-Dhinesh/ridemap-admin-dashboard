@@ -96,7 +96,7 @@ const Dashboard = () => {
                 <Typography variant="h6" fontWeight="bold">
                   Total Students
                 </Typography>
-                {!totalStudents ? (
+                {busUserCounts !== null ? (
                   <Typography variant="h4" fontWeight="bold" mt={2}>
                     {totalStudents}
                   </Typography>
@@ -105,7 +105,7 @@ const Dashboard = () => {
                 )}
               </Box>
               <Box display={"flex"} alignItems={"center"}>
-                {!totalStudents ? (
+                {busUserCounts !== null ? (
                   <PersonIcon sx={{ fontSize: 40 }} />
                 ) : (
                   <Skeleton variant="circular" width={40} height={40} />
@@ -128,7 +128,7 @@ const Dashboard = () => {
                 <Typography variant="h6" fontWeight="bold">
                   Gender Ratio
                 </Typography>
-                {!totalStudents ? (
+                {busUserCounts !== null ? (
                   <Box display="flex" alignItems="center" className="max-[445px]:flex-col">
                     <Box fontWeight="bold" p={1} mt={1}>
                       <p className="text-3xl max-[445px]:text-xl">M: {maleGenderCount}<span className="text-xs ml-2 text-blue-500">{((maleGenderCount / totalStudents) * 100).toFixed(2)}%</span></p>
@@ -145,7 +145,7 @@ const Dashboard = () => {
                 )}
               </Box>
               <Box display="flex" alignItems="center">
-                {!totalStudents ? (
+                {busUserCounts !== null ? (
                   <>
                     <MaleIcon sx={{ fontSize: 40 }} />
                     <FemaleIcon sx={{ fontSize: 40 }} />
