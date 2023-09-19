@@ -78,7 +78,7 @@ const Dashboard = () => {
 
   }, [busNo, institute, dispatch]);
 
-  const totalStudents = busUserCounts ? busUserCounts.reduce((prev, curr) => prev + curr.userCount, 0) : 0
+  const totalStudents = busUserCounts ? busUserCounts.reduce((prev, curr) => prev + curr.userCount, 0) : 0;
 
   return (
     <Box m="20px">
@@ -96,7 +96,7 @@ const Dashboard = () => {
                 <Typography variant="h6" fontWeight="bold">
                   Total Students
                 </Typography>
-                {totalStudents ? (
+                {!totalStudents ? (
                   <Typography variant="h4" fontWeight="bold" mt={2}>
                     {totalStudents}
                   </Typography>
@@ -105,7 +105,7 @@ const Dashboard = () => {
                 )}
               </Box>
               <Box display={"flex"} alignItems={"center"}>
-                {totalStudents ? (
+                {!totalStudents ? (
                   <PersonIcon sx={{ fontSize: 40 }} />
                 ) : (
                   <Skeleton variant="circular" width={40} height={40} />
@@ -128,7 +128,7 @@ const Dashboard = () => {
                 <Typography variant="h6" fontWeight="bold">
                   Gender Ratio
                 </Typography>
-                {totalStudents ? (
+                {!totalStudents ? (
                   <Box display="flex" alignItems="center" className="max-[445px]:flex-col">
                     <Box fontWeight="bold" p={1} mt={1}>
                       <p className="text-3xl max-[445px]:text-xl">M: {maleGenderCount}<span className="text-xs ml-2 text-blue-500">{((maleGenderCount / totalStudents) * 100).toFixed(2)}%</span></p>
@@ -145,7 +145,7 @@ const Dashboard = () => {
                 )}
               </Box>
               <Box display="flex" alignItems="center">
-                {totalStudents ? (
+                {!totalStudents ? (
                   <>
                     <MaleIcon sx={{ fontSize: 40 }} />
                     <FemaleIcon sx={{ fontSize: 40 }} />
