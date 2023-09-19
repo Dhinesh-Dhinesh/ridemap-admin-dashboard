@@ -5,7 +5,7 @@ const useApi = () => {
   const token = useAppSelector((state) => state.auth.user?.accessToken);
 
   return axios.create({
-    baseURL: 'https://api-2lwctso52q-uc.a.run.app/',
+    baseURL: import.meta.env.VITE_API_API_URL,
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,

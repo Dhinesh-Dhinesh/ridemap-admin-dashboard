@@ -95,7 +95,7 @@ const App: React.FC = () => {
           // Get admin user data from firestore if the data isn't in redux store
           if (adminData === null) {
             // update the lastLoginAt field in firestore
-            const docRef = doc(db, 'institutes/smvec/admins', user.uid);
+            const docRef = doc(db, `institutes/${institute}/admins`, user.uid);
 
 
             updateDoc(docRef, {

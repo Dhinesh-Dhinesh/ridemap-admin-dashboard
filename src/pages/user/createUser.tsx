@@ -153,6 +153,13 @@ const CreateUser: React.FC = () => {
                         severity: "warning",
                     })
                     break;
+                case "Invalid token":
+                    setSnackBar({
+                        open: true,
+                        message: "Login again session has expired",
+                        severity: "error",
+                    })
+                    break;
             }
 
             setSubmitLoading(false)
