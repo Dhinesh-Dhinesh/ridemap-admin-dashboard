@@ -45,24 +45,20 @@ import { collection, getCountFromServer, query, where } from 'firebase/firestore
 import { db } from '../../firebase';
 import dayjs from 'dayjs';
 
-const formDataProps = [
-    'name',
-    'fatherName',
-    'emailOrPhone',
-    'phone',
-    'enrollNo',
-    'address',
-    'city',
-    'busStop',
-    'busNo',
-    'department',
-    'validUpto',
-    'gender',
-] as const;
-
 type FormData = {
-    [K in typeof formDataProps[number]]: string;
-};
+    name: string;
+    fatherName: string;
+    emailOrPhone: string;
+    phone: string;
+    enrollNo: string;
+    address: string;
+    city: string;
+    busStop: string;
+    busNo: string | null;
+    department: string | null;
+    validUpto: string;
+    gender: string;
+}
 
 type snackBar = {
     open: boolean;
@@ -150,6 +146,13 @@ const CreateUser: React.FC = () => {
                     setSnackBar({
                         open: true,
                         message: "Email already exist",
+                        severity: "warning",
+                    })
+                    break;
+                case "auth/invalid-phone-number":
+                    setSnackBar({
+                        open: true,
+                        message: "Invalid Email or Phone",
                         severity: "warning",
                     })
                     break;
@@ -251,7 +254,12 @@ const CreateUser: React.FC = () => {
                             sx={{ gridColumn: "span 2" }}
                         />
                     )}
-                    rules={{ required: 'Required', pattern: { value: /^[A-Za-z/.\s]+$/i, message: "Only alphabets are allowed" } }}
+                    rules={{
+                        required: 'Required', pattern: {
+                            value: /^[A-Za-z.]+(\s[A-Za-z.]+)*$/i,
+                            message: "Only alphabets are allowed with spaces between words"
+                        }
+                    }}
                 />
                 <Controller
                     name="fatherName"
@@ -268,7 +276,12 @@ const CreateUser: React.FC = () => {
                             sx={{ gridColumn: "span 2" }}
                         />
                     )}
-                    rules={{ required: 'Required', pattern: { value: /^[A-Za-z/.\s]+$/i, message: "Only alphabets are allowed" } }}
+                    rules={{
+                        required: 'Required', pattern: {
+                            value: /^[A-Za-z.]+(\s[A-Za-z.]+)*$/i,
+                            message: "Only alphabets are allowed with spaces between words"
+                        }
+                    }}
                 />
                 <Controller
                     name="emailOrPhone"
@@ -280,8 +293,10 @@ const CreateUser: React.FC = () => {
                             variant="outlined"
                             value={value}
                             onChange={(e) => {
-                                onChange(e.target.value.toLowerCase());
-                                handleEmailOrPhoneChange(e)
+                                // Remove spaces at the beginning and end of the input
+                                const trimmedValue = e.target.value.trim();
+                                onChange(trimmedValue.toLowerCase());
+                                handleEmailOrPhoneChange(e);
                             }}
                             error={!!error}
                             helperText={error ? error.message : null}
@@ -331,7 +346,14 @@ const CreateUser: React.FC = () => {
                             label="Enroll no"
                             variant="outlined"
                             value={value}
-                            onChange={(e) => onChange(e.target.value.toUpperCase())}
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "") {
+                                    onChange("");
+                                } else if (/^[a-zA-Z0-9]+$/.test(value)) {
+                                    onChange(value.toUpperCase());
+                                }
+                            }}
                             error={!!error}
                             helperText={error ? error.message : null}
                             sx={{ gridColumn: "span 2" }}
@@ -393,7 +415,7 @@ const CreateUser: React.FC = () => {
                 <Controller
                     name="busNo"
                     control={control}
-                    defaultValue=""
+                    defaultValue={null}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <FormControl fullWidth error={!!error} sx={{ gridColumn: "span 1" }}>
                             <Autocomplete
@@ -405,7 +427,7 @@ const CreateUser: React.FC = () => {
                                     onChange(newValue as string)
                                     setBusNo(newValue as string)
                                 }}
-                                value={value}
+                                value={value || null}
                             />
                             {error && (
                                 <FormHelperText>{error.message}</FormHelperText>
@@ -427,7 +449,7 @@ const CreateUser: React.FC = () => {
                 <Controller
                     name="department"
                     control={control}
-                    defaultValue=""
+                    defaultValue={null}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <FormControl fullWidth error={!!error} sx={{ gridColumn: "span 1" }}>
                             <Autocomplete
@@ -436,7 +458,7 @@ const CreateUser: React.FC = () => {
                                 options={departments as string[] || []}
                                 renderInput={(params: AutocompleteRenderInputParams) => <TextField {...params} label="Department" error={!!error} />}
                                 onChange={(_e, newValue) => onChange(newValue as string)}
-                                value={value}
+                                value={value || null}
                             />
                             {error && (
                                 <FormHelperText>{error.message}</FormHelperText>
