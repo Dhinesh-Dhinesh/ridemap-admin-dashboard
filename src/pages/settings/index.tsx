@@ -90,7 +90,7 @@ const Settings = () => {
 
                 {/* Busses */}
 
-                <div className="text-md font-semibold mb-2">Busses : {bussesChipData?.length ? bussesChipData?.length : 0}</div>
+                <div className="text-md font-semibold mb-2">Buses : {bussesChipData?.length ? bussesChipData?.length : 0}</div>
                 <Paper
                     sx={{
                         display: 'flex',

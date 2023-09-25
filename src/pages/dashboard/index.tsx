@@ -166,7 +166,7 @@ const Dashboard = () => {
             <Box m="0 30px" p="12px 0" display={"flex"} justifyContent={"space-between"} className="xl:h-32 md:h-36 sm:h-44">
               <Box display="flex" flexDirection="column">
                 <Typography variant="h6" fontWeight="bold">
-                  Number of Buses
+                  Buses
                 </Typography>
                 {busUserCounts !== null ? (
                   <Typography variant="h4" fontWeight="bold" mt={2}>
