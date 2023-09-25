@@ -6,12 +6,15 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import NoDataLogo from "./assets/nodata.svg"
 import { LoadingButton } from "@mui/lab";
 import { extractYearAndMonth, formatTimestamp } from "../../util/dateFormatter";
+import { useAppSelector } from "../../redux/hooks";
 
 const SearchUser = () => {
 
     const [enrollmentNo, setEnrollmentNo] = useState<string>('');
-    const [userData, setUserData] = useState<UserData | null | "NODATA">(null);
+    const [userData, setUserData] = useState<UserData[] | null | "NODATA">(null);
     const [isSearchLoading, setIsSearchLoading] = useState<boolean>(false);
+
+    const institute = useAppSelector(state => state.auth.user?.institute)
 
     const handleSearch = async () => {
         try {
@@ -23,7 +26,7 @@ const SearchUser = () => {
             }
 
             // Reference to the Firestore collection
-            const usersCollectionRef = collection(db, 'institutes/smvec/users');
+            const usersCollectionRef = collection(db, `institutes/${institute}/users`);
 
             // Query for documents where 'enrollNo' matches the input value
             const q = query(usersCollectionRef, where('enrollNo', '==', enrollmentNo));
@@ -32,7 +35,7 @@ const SearchUser = () => {
 
             if (!querySnapshot.empty) {
                 // User data found
-                const userData = querySnapshot.docs[0].data() as UserData;
+                const userData = querySnapshot.docs.map(doc => doc.data() as UserData);
                 setUserData(userData);
             } else {
                 // User not found
@@ -73,9 +76,9 @@ const SearchUser = () => {
                 >
                     Search
                 </LoadingButton>
-                {(userData && userData !== "NODATA") && (
-                    <div className="p-3 bg-white rounded-lg shadow-lg mt-5">    
-                        <h2 className="text-2xl font-semibold mb-4">User Data</h2>
+                {(userData && userData !== "NODATA") && (userData.map(userData => (
+                    <div className="p-3 bg-white rounded-lg shadow-lg mt-5" key={userData.phone}>
+                        <h2 className="text-2xl font-semibold mb-4">{userData.name} / {userData.department}</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div className="bg-gray-100 p-4">
                                 <p className="font-semibold">Name:</p>
@@ -142,9 +145,9 @@ const SearchUser = () => {
                                 </p>
                             </div>
                         </div>
-
                     </div>
-                )}
+                )))
+                }
                 {userData === "NODATA" && (
                     <div className="flex flex-col items-center justify-center mt-10 w-full h-[50vh]">
                         <img src={NoDataLogo} alt="user not found" className="w-24 h-24" />
