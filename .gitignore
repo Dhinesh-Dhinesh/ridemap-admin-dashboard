@@ -25,3 +25,6 @@ dist-ssr
 
 .env
 .env.*
+
+# Ignore Firebase generated hosting files
+.firebase
