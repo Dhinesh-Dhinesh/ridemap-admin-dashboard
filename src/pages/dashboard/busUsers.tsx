@@ -1,35 +1,162 @@
-import { Box, LinearProgress } from '@mui/material'
+import { Alert, Autocomplete, AutocompleteRenderInputParams, Box, LinearProgress, TextField } from '@mui/material'
 import { useNavigate, useParams } from 'react-router-dom'
 import { BaseButton } from '../../components/BaseButton'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { useAppSelector } from '../../redux/hooks'
+import { collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore'
+import { useAppDispatch, useAppSelector } from '../../redux/hooks'
 import { db } from '../../firebase'
 import { UserData } from '../../types'
 import { useEffect, useState } from 'react'
 import { extractYearAndMonth, formatTimestamp } from '../../util/dateFormatter'
 import { DataGrid, GridColDef, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import CustomNoRowsOverlay from '../../components/CustomNoOverlay'
+import { shallowEqual } from 'react-redux'
+import { getBusses, removeUserRecords } from '../../redux/features/instituteSlice'
+import SnackBar from '../../components/SnackBar'
+
+import type { snackBar } from '../../types'
 
 const BusUsers = () => {
 
     const { busId } = useParams()
     const navigate = useNavigate()
+    const dispatch = useAppDispatch()
 
-    const institute = useAppSelector(state => state.auth.user?.institute)
+    const { institute, busses } = useAppSelector(state => {
+        return {
+            institute: state.auth.user?.institute,
+            busses: state.institute?.busses
+        }
+    },
+        shallowEqual
+    )
+
     const [busUserData, setBusUserData] = useState<UserData[] | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
+
+    const [snackBar, setSnackBar] = useState<snackBar>({
+        open: false,
+        message: "",
+        severity: undefined
+    });
+
+    const updateBusNo = async (institute: string, uid: string, busNo: string) => {
+
+        // User document reference
+        const userDocRef = doc(db, `institutes/${institute}/users`, uid);
+
+        // Updating busNo field
+        try {
+
+            // ignore busNo if not in the busses array
+            if (!busses?.includes(busNo)) {
+                setSnackBar({
+                    open: true,
+                    message: "Please choose a correct bus number",
+                    severity: "warning",
+                })
+
+                setTimeout(() => {
+                    setSnackBar((prev) => ({ ...prev, open: false }));
+                }, 1000);
+
+                return
+            };
+
+            // update on ui
+            await updateDoc(userDocRef, { busNo })
+
+            // updating ui
+            if (busUserData !== null) {
+                // Use the filter method to create a new array without the object with the specified uid
+                const updatedBusUserData = busUserData.filter((userData) => userData.id !== uid);
+
+                // Set the updated array back to busUserData
+                setBusUserData(updatedBusUserData);
+
+                setSnackBar({
+                    open: true,
+                    message: "Bus number updated",
+                    severity: "success",
+                })
+
+                setTimeout(() => {
+                    setSnackBar((prev) => ({ ...prev, open: false }));
+                }, 1000);
+
+                // Clear user Records for get the updated datas
+                dispatch(removeUserRecords())
+            }
+        } catch (err) {
+            console.log(err)
+
+            setSnackBar({
+                open: true,
+                message: "Error occured while update",
+                severity: "error",
+            })
+
+            setTimeout(() => {
+                setSnackBar((prev) => ({ ...prev, open: false }));
+            }, 1000);
+        }
+    }
+
+    useEffect(() => {
+        if (institute) {
+            if (!busses) {
+                dispatch(getBusses(institute));
+            }
+        }
+    }, [busses])
 
     const columns: GridColDef[] = [
         { field: 'name', headerName: 'Name', minWidth: 150 },
         { field: 'fatherName', headerName: 'Father Name', minWidth: 150 },
         { field: 'enrollNo', headerName: 'Enroll No', minWidth: 120 },
         { field: 'department', headerName: 'Department', minWidth: 120 },
+        { field: 'busStop', headerName: 'Bus Stop', minWidth: 170 },
+        // Editable busNo filed from busses on specified institute in db
+        {
+            field: 'busNo', headerName: 'Bus No', minWidth: 120,
+            editable: true,
+            renderEditCell: (params) => {
+
+                let userId: string = params.row.id;
+                let inputValue: string | null = null;
+
+                const handleInputChange = (
+                    _event: React.ChangeEvent<{}>,
+                    newValue: string | null
+                ) => {
+                    if (newValue !== null) {
+                        inputValue = newValue;
+                    }
+                };
+
+                const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = async (event) => {
+                    if (event.key === 'Enter') {
+                        await updateBusNo(institute as string, userId, inputValue as string);
+                    }
+                };
+
+                return (
+                    <Autocomplete
+                        fullWidth
+                        disablePortal
+                        id="combo-box-demo"
+                        options={busses as string[] || []}
+                        renderInput={(params: AutocompleteRenderInputParams) => <TextField {...params} />}
+                        onInputChange={handleInputChange}
+                        onKeyDown={handleKeyDown}
+                        value={inputValue}
+                    />
+                )
+            }
+        },
         { field: 'emailOrPhone', headerName: 'Email/Phone', minWidth: 250 },
         { field: 'phone', headerName: 'Phone', minWidth: 100 },
         { field: 'gender', headerName: 'Gender', minWidth: 80 },
         { field: 'city', headerName: 'City', minWidth: 100 },
-        { field: 'busStop', headerName: 'Bus Stop', minWidth: 170 },
-        { field: 'busNo', headerName: 'Bus No', minWidth: 120 },
         { field: 'address', headerName: 'Address', minWidth: 200 },
         { field: 'validUpto', headerName: 'Valid Up To', minWidth: 120 },
         { field: 'createdAt', headerName: 'Created At', minWidth: 180 },
@@ -130,6 +257,11 @@ const BusUsers = () => {
                     }}
                 />
             </Box>
+            <SnackBar isOpen={snackBar.open}>
+                <div className="w-full">
+                    <Alert severity={snackBar.severity} variant='filled'>{snackBar.message}</Alert>
+                </div>
+            </SnackBar>
         </Box>
     )
 }

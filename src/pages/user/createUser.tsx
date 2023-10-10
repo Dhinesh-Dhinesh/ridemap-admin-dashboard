@@ -45,6 +45,9 @@ import { collection, getCountFromServer, query, where } from 'firebase/firestore
 import { db } from '../../firebase';
 import dayjs from 'dayjs';
 
+//! types
+import type { snackBar } from '../../types';
+
 type FormData = {
     name: string;
     fatherName: string;
@@ -58,12 +61,6 @@ type FormData = {
     department: string | null;
     validUpto: string;
     gender: string;
-}
-
-type snackBar = {
-    open: boolean;
-    message: string;
-    severity: "success" | "error" | "info" | "warning" | undefined;
 }
 
 const CreateUser: React.FC = () => {
