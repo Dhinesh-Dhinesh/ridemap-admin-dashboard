@@ -10,7 +10,7 @@ import { extractYearAndMonth, formatTimestamp } from '../../util/dateFormatter'
 import { DataGrid, GridColDef, GridToolbarColumnsButton, GridToolbarContainer, GridToolbarDensitySelector, GridToolbarExport, GridToolbarFilterButton, GridToolbarQuickFilter } from '@mui/x-data-grid'
 import CustomNoRowsOverlay from '../../components/CustomNoOverlay'
 import { shallowEqual } from 'react-redux'
-import { getBusses, removeUserRecords } from '../../redux/features/instituteSlice'
+import { getBusses, removeBusUserCount, removeUserRecords } from '../../redux/features/instituteSlice'
 import SnackBar from '../../components/SnackBar'
 
 import type { snackBar } from '../../types'
@@ -40,6 +40,9 @@ const BusUsers = () => {
     });
 
     const updateBusNo = async (institute: string, uid: string, busNo: string) => {
+
+        // ignores if the changed bus no is same
+        if (busId === busNo) return;
 
         // User document reference
         const userDocRef = doc(db, `institutes/${institute}/users`, uid);
@@ -85,6 +88,9 @@ const BusUsers = () => {
 
                 // Clear user Records for get the updated datas
                 dispatch(removeUserRecords())
+
+                // clear busCount data from dashboard page for get the latest count
+                dispatch(removeBusUserCount())
             }
         } catch (err) {
             console.log(err)
