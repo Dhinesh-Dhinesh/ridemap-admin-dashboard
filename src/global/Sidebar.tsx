@@ -9,6 +9,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+import ReportIcon from '@mui/icons-material/Report';
 
 // Images
 import logo from '../assets/logo.png';
@@ -130,11 +131,12 @@ const SidebarReact: React.FC<props> = ({ isVisible, activeMenu }) => {
                     <SubMenu
                         label="Users"
                         icon={<PersonIcon />}
-                        active={["/create-user", "/search-user", "/users"].includes(activeMenu)}
+                        active={["/create-user", "/search-user", "/users", "/reports-user"].includes(activeMenu)}
                     >
                         <MenuItem suffix={<AddCircleIcon />} component={<Link to="/create-user" />}> Create user </MenuItem>
                         <MenuItem suffix={<PersonSearchIcon />} component={<Link to="/search-user" />}> Search user </MenuItem>
                         <MenuItem suffix={<InsertDriveFileIcon />} component={<Link to="/users" />}> User records </MenuItem>
+                        <MenuItem suffix={<ReportIcon />} component={<Link to="/reports-user" />}> Reported users </MenuItem>
                     </SubMenu>
                     <MenuItem icon={<SettingsIcon />} component={<Link to="/settings" />}> Settings </MenuItem>
                 </Menu>

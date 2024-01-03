@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 // User Slice types
 export interface User {
     readonly displayName: string | null;
@@ -51,4 +53,15 @@ export type snackBar = {
     open: boolean;
     message: string;
     severity: "success" | "error" | "info" | "warning" | undefined;
+}
+
+export type DownloadURLs = {
+    thumbnails: string[];
+    originals: string[];
+}
+
+export type ReportedUser = {
+    enrollNo: string;
+    date: Timestamp;
+    uploadedBy: string;
 }

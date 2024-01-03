@@ -8,7 +8,7 @@ import SnackBar from "../../components/SnackBar";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../redux/hooks";
 import { shallowEqual } from "react-redux";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, where, query, getDocs, setDoc } from "firebase/firestore";
 
 type snackBar = {
     open: boolean;
@@ -156,21 +156,32 @@ const ReportUser: React.FC = () => {
                     uploadedBy: userId
                 }
 
-                addDoc(collectionRef, data).then(() => {
-                    // Reset state after successful upload
-                    setSelectedFiles(null);
-                    setPreviewURLs([]);
-                    setSnackBar({
-                        open: true,
-                        message: "Uploaded successfully",
-                        severity: "success",
-                    })
-                    setTimeout(() => {
-                        setUploadProgress(null)
-                        setSnackBar((prev) => ({ ...prev, open: false }));
-                        navigate(-1)
-                    }, 1000);
-                }).catch(err => console.log(err));
+                // Check if the document with the given enrollNo exists
+                const q = query(collectionRef, where('enrollNo', '==', enrollmentNo));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.size > 0) {
+                    // Document exists, update the existing document
+                    const enrollNoDocRef = querySnapshot.docs[0].ref;
+                    await setDoc(enrollNoDocRef, data, { merge: true });
+                } else {
+                    // Document doesn't exist, create a new one
+                    await addDoc(collectionRef, data)
+                }
+
+                // Reset the state after the document has been added
+                setSelectedFiles(null);
+                setPreviewURLs([]);
+                setSnackBar({
+                    open: true,
+                    message: "Uploaded successfully",
+                    severity: "success",
+                })
+                setTimeout(() => {
+                    setUploadProgress(null)
+                    setSnackBar((prev) => ({ ...prev, open: false }));
+                    navigate(-1)
+                }, 1000);
 
             } catch (error) {
                 console.error('Error uploading files:', error);

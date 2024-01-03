@@ -13,6 +13,7 @@ import Admin from "./pages/admin/admin";
 import CreateAdmin from "./pages/admin/createAdmin";
 import Settings from "./pages/settings"
 import ReportUser from "./pages/user/reportUsers";
+import ViewUserReports from "./pages/user/viewUserReports"
 
 import Topbar from "./global/Topbar";
 
@@ -137,6 +138,7 @@ const App: React.FC = () => {
                 <Route path="/users" element={<User />} />
                 <Route path="/create-user" element={<CreateUser />} />
                 <Route path="/search-user" element={<SearchUser />} />
+                <Route path="/reports-user" element={<ViewUserReports />} />
                 <Route path="/report-user" element={<ReportUser />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
