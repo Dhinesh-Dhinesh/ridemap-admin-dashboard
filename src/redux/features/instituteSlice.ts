@@ -62,6 +62,12 @@ export const instituteSlice = createSlice({
         },
         setMaleGenderCount: (state, action: PayloadAction<number>) => {
             state.maleGenderCount = action.payload;
+        },
+        removeUserRecords: (state) => {
+            state.users.data = null;
+        },
+        removeBusUserCount: (state) => {
+            state.busUserCount = null;
         }
     },
     extraReducers: (builder) => {
@@ -226,7 +232,7 @@ export const getUsers = createAsyncThunk('institute/getUsers', async (institute:
 })
 
 //* action
-export const { setBusUserCount, setMaleGenderCount } = instituteSlice.actions;
+export const { setBusUserCount, setMaleGenderCount, removeUserRecords, removeBusUserCount } = instituteSlice.actions;
 
 //* reducer
 export default instituteSlice.reducer;

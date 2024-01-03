@@ -46,3 +46,9 @@ export interface UserData {
 export type BusUsersDatas = {
     [key: string]: UserData[] | null
 }
+
+export type snackBar = {
+    open: boolean;
+    message: string;
+    severity: "success" | "error" | "info" | "warning" | undefined;
+}
