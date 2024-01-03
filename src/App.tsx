@@ -1,5 +1,5 @@
 // React router dom
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoutes";
 
 import jwt_decode from "jwt-decode";
@@ -12,6 +12,7 @@ import CreateUser from "./pages/user/createUser";
 import Admin from "./pages/admin/admin";
 import CreateAdmin from "./pages/admin/createAdmin";
 import Settings from "./pages/settings"
+import ReportUser from "./pages/user/reportUsers";
 
 import Topbar from "./global/Topbar";
 
@@ -56,13 +57,14 @@ const App: React.FC = () => {
   // Visible state for sidebar and topbar
   const isVisible = (path !== "/" && !!isUser)
 
-  /** 
+
+  useEffect(() => {
+    /** 
    * Auth state listener
    * 
    * If user is logged in then dispatch the user data to the redux store
    * Get admin user data from firestore
    */
-  useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (user) => {
 
       if (user && user.uid) {
@@ -135,8 +137,10 @@ const App: React.FC = () => {
                 <Route path="/users" element={<User />} />
                 <Route path="/create-user" element={<CreateUser />} />
                 <Route path="/search-user" element={<SearchUser />} />
+                <Route path="/report-user" element={<ReportUser />} />
                 <Route path="/settings" element={<Settings />} />
               </Route>
+              <Route path="*" element={<Navigate to="/" />} />
             </Routes>
           </main>
         </div>

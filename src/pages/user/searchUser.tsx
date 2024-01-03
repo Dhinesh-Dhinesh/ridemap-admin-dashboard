@@ -1,4 +1,4 @@
-import { Box, TextField, Typography } from "@mui/material"
+import { Box, Button, TextField, Typography } from "@mui/material"
 import { useState } from "react";
 import { UserData } from "../../types";
 import { db } from "../../firebase";
@@ -7,6 +7,7 @@ import NoDataLogo from "./assets/nodata.svg"
 import { LoadingButton } from "@mui/lab";
 import { extractYearAndMonth, formatTimestamp } from "../../util/dateFormatter";
 import { useAppSelector } from "../../redux/hooks";
+import { useNavigate } from "react-router-dom";
 
 const SearchUser = () => {
 
@@ -15,6 +16,7 @@ const SearchUser = () => {
     const [isSearchLoading, setIsSearchLoading] = useState<boolean>(false);
 
     const institute = useAppSelector(state => state.auth.user?.institute)
+    const navigate = useNavigate();
 
     const handleSearch = async () => {
         try {
@@ -148,12 +150,34 @@ const SearchUser = () => {
                     </div>
                 )))
                 }
+                {(!!userData && userData !== "NODATA") && (
+                    <Box className="mt-5 ">
+                        Enrollment Not Found?
+                        <span className="underline underline-offset-2 cursor-pointer ml-2 text-[#ed6c02] hover:text-gray-700"
+                            onClick={() => navigate("/report-user", {
+                                state: {
+                                    enrollmentNumber: enrollmentNo,
+                                },
+                            })}
+                        >Report</span>
+                    </Box>
+                )}
                 {userData === "NODATA" && (
                     <div className="flex flex-col items-center justify-center mt-10 w-full h-[50vh]">
                         <img src={NoDataLogo} alt="user not found" className="w-24 h-24" />
                         <Typography variant="h6" component="div" className="text-xl mt-10 text-center text-gray-700">
                             User not found
                         </Typography>
+                        <Button
+                            variant="outlined"
+                            color="warning"
+                            className="mt-5"
+                            onClick={() => navigate("/report-user", {
+                                state: {
+                                    enrollmentNumber: enrollmentNo,
+                                },
+                            })}
+                        >Report</Button>
                     </div>
                 )}
             </div>
