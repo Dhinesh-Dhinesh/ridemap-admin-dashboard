@@ -57,27 +57,29 @@ const SearchUser = () => {
                 <h4 className="text-l font-semibold mt-3 ml-0.5">Check Enrollment Status</h4>
             </div>
             <div>
-                <TextField
-                    label="Enrollment Number"
-                    variant="outlined"
-                    autoComplete="off"
-                    value={enrollmentNo}
-                    onChange={(e) => setEnrollmentNo(e.target.value.toUpperCase().trim())}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                            handleSearch();
-                        }
-                    }}
-                />
-                <LoadingButton
-                    sx={{ p: "1rem", ml: "1rem" }}
-                    color="primary"
-                    onClick={handleSearch}
-                    variant="contained"
-                    loading={isSearchLoading}
-                >
-                    Search
-                </LoadingButton>
+                <div className="flex">
+                    <TextField
+                        label="Enrollment Number"
+                        variant="outlined"
+                        autoComplete="off"
+                        value={enrollmentNo}
+                        onChange={(e) => setEnrollmentNo(e.target.value.toUpperCase().trim())}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                                handleSearch();
+                            }
+                        }}
+                    />
+                    <LoadingButton
+                        sx={{ p: "1rem", ml: "1rem" }}
+                        color="primary"
+                        onClick={handleSearch}
+                        variant="contained"
+                        loading={isSearchLoading}
+                    >
+                        Search
+                    </LoadingButton>
+                </div>
                 {(userData && userData !== "NODATA") && (userData.map(userData => (
                     <div className="p-3 bg-white rounded-lg shadow-lg mt-5" key={userData.phone}>
                         <h2 className="text-2xl font-semibold mb-4">{userData.name} / {userData.department}</h2>
