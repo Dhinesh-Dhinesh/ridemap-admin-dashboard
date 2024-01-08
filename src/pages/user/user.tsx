@@ -4,8 +4,9 @@ import { useNavigate } from "react-router-dom";
 
 
 // MUI
-import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import LinearProgress from '@mui/material/LinearProgress';
+import EditIcon from '@mui/icons-material/Edit';
 
 // custom mui
 import CustomNoRowsOverlay from "../../components/CustomNoOverlay";
@@ -31,6 +32,15 @@ const User = () => {
     shallowEqual
   )
 
+  const handleEditClick = (data: UserData) => {
+    console.log(data);
+    navigate("/edit-user", {
+      state: {
+        userData: data
+      }
+    })
+  }
+
   const columns: GridColDef[] = [
     { field: 'name', headerName: 'Name', minWidth: 150 },
     { field: 'fatherName', headerName: 'Father Name', minWidth: 150 },
@@ -45,7 +55,21 @@ const User = () => {
     { field: 'address', headerName: 'Address', minWidth: 200 },
     { field: 'validUpto', headerName: 'Valid Up To', minWidth: 120 },
     { field: 'createdAt', headerName: 'Created At', minWidth: 180 },
-    { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120 }
+    { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120 },
+    {
+      field: 'edit', headerName: "Edit", minWidth: 80, type: 'actions',
+      getActions: ({ row }) => {
+        return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={(_e) => handleEditClick(row)}
+            color="inherit"
+          />
+        ]
+      }
+    }
   ];
 
   useEffect(() => {
