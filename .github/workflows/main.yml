@@ -30,6 +30,6 @@ jobs:
     - name: Deploy to Firebase Hosting
       run: |
         yarn global add firebase-tools
-        firebase deploy --token ${{ secrets.FIREBASE_TOKEN }} --project ${{ env.FIREBASE_PROJECT_ID }}
+        firebase deploy --token ${{ secrets.FIREBASE_TOKEN }} --project smv-school
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
