@@ -1,0 +1,35 @@
+name: Deploy to Firebase (DEV ENV)
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js and Yarn
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        yarn: true
+
+    - name: Install dependencies
+      run: |
+        yarn install
+
+    - name: Build Vite project
+      run: |
+        yarn build
+
+    - name: Deploy to Firebase Hosting
+      uses: w9jds/firebase-action@v2
+      with:
+        args: deploy --only hosting
+      env:
+        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
