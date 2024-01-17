@@ -16,7 +16,7 @@ jobs:
     - name: Setup Node.js and Yarn
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
+        node-version: '18'
         yarn: true
 
     - name: Install dependencies
@@ -30,6 +30,6 @@ jobs:
     - name: Deploy to Firebase Hosting
       run: |
         yarn global add firebase-tools
-        firebase deploy --token ${{ secrets.FIREBASE_TOKEN }}
+        firebase deploy --token ${{ secrets.FIREBASE_TOKEN }} --project $FIREBASE_PROJECT_ID
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
