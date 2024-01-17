@@ -28,8 +28,8 @@ jobs:
         yarn build
 
     - name: Deploy to Firebase Hosting
-      uses: firebase/actions/hosting-deploy@v1
-      with:
-        repoToken: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        yarn global add firebase-tools
+        firebase deploy --token ${{ secrets.FIREBASE_TOKEN }}
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
