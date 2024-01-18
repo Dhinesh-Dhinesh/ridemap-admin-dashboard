@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - dev
+env:
+  VITE_API_API_KEY: ${{secrets.VITE_API_API_KEY}}
+  VITE_API_AUTH_DOMAIN: ${{secrets.VITE_API_AUTH_DOMAIN}}
+  VITE_API_DATABASE_URL: ${{secrets.VITE_API_DATABASE_URL}}
+  VITE_API_PROJECT_ID: ${{secrets.VITE_API_PROJECT_ID}}
+  VITE_API_STORAGE_BUCKET: ${{secrets.VITE_API_STORAGE_BUCKET}}
+  VITE_API_MESSAGING_SENDER_ID: ${{secrets.VITE_API_MESSAGING_SENDER_ID}}
+  VITE_API_APP_ID: ${{secrets.VITE_API_APP_ID}}
+  VITE_API_MEASUREMENT_ID: ${{secrets.VITE_API_MEASUREMENT_ID}}
+  VITE_API_API_URL: ${{secrets.VITE_API_API_URL}}
 
 jobs:
   deploy:
@@ -16,8 +26,10 @@ jobs:
     - name: Setup Node.js and Yarn
       uses: actions/setup-node@v3
       with:
-        node-version: '16'
-        yarn: true
+        node-version: '18'
+
+    - name: Install Yarn
+      run: npm install -g yarn
 
     - name: Install dependencies
       run: |
@@ -28,8 +40,8 @@ jobs:
         yarn build
 
     - name: Deploy to Firebase Hosting
-      uses: w9jds/firebase-action@v2
-      with:
-        args: deploy --only hosting
+      run: |
+        yarn global add firebase-tools
+        firebase deploy --token ${{ secrets.FIREBASE_TOKEN }} --project smv-school
       env:
         FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
