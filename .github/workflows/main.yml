@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-
 env:
   VITE_API_API_KEY: ${{secrets.VITE_API_API_KEY}}
   VITE_API_AUTH_DOMAIN: ${{secrets.VITE_API_AUTH_DOMAIN}}
