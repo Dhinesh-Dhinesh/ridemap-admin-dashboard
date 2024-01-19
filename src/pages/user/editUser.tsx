@@ -413,34 +413,36 @@ export default function editUser() {
                 />
                 <Controller
                     name="validUpto"
-                    defaultValue=''
+                    defaultValue=""
                     control={control}
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
-                                // defaultValue={}
                                 label={'Valid upto'}
                                 views={['month', 'year']}
                                 disablePast={true}
                                 onChange={(newValue) => {
+
+                                    // checks for null value
                                     if (newValue === null) {
-                                        // Handle empty input
                                         onChange('');
                                         return;
                                     }
+                                    // Validate for show error message on value change
 
                                     // Convert newValue to a dayjs date object for comparison
                                     const selectedDate = dayjs(newValue);
 
+                                    // Shows error message if the selected date is in the past otherwise change the value without error message
                                     if (selectedDate.isBefore(dayjs(), 'date')) {
-                                        // If the selected date is in the past, handle it as needed (e.g., show an error)
-                                        // onChange(''); // Clear the input or handle it as needed
                                         setError('validUpto', {
                                             type: 'manual',
                                             message: 'Year and month must not be in the past.',
                                         });
+
+                                        onChange(newValue?.toString() ?? '');
                                     } else {
-                                        onChange(newValue?.toString() ?? ''); // Update the state with the valid date
+                                        onChange(newValue?.toString() ?? '');
                                     }
                                 }}
                                 slotProps={{
@@ -453,7 +455,19 @@ export default function editUser() {
                             />
                         </LocalizationProvider>
                     )}
-                    rules={{ required: 'Required' }}
+                    rules={{
+                        required: 'Required',
+                        validate: (value) => {
+                            const selectedDate = dayjs(value);
+
+                            if (selectedDate.isValid() && selectedDate.isBefore(dayjs(), 'date')) {
+                                return 'Year and month must not be in the past.';
+                            }
+
+                            // If the date is valid or empty, return true
+                            return true;
+                        }
+                    }}
                 />
                 <Controller
                     name="gender"
