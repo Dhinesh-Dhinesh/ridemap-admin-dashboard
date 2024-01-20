@@ -117,52 +117,25 @@ const CreateUser: React.FC = () => {
             console.log(err)
 
             if (err.message === "Network Error") {
-                setSnackBar({
-                    open: true,
-                    message: "Network error",
-                    severity: "error",
-                })
+                setSnackBar({ open: true, message: "Network error", severity: "error" });
+            } else {
+                const errorMessage = err.response?.data?.message;
+
+                if (errorMessage) {
+                    const errorMessages: { [key: string]: string } = {
+                        "validation/enroll-already-exist": "Enroll no already exist",
+                        "auth/phone-number-already-exists": "Phone number already exist",
+                        "auth/email-already-exists": "Email already exist",
+                        "auth/invalid-phone-number": "Invalid Email or Phone",
+                        "Invalid token": "Login again session has expired",
+                    };
+
+                    const severity = errorMessage === "Invalid token" ? "error" : "warning";
+                    setSnackBar({ open: true, message: errorMessages[errorMessage as keyof typeof errorMessages], severity });
+                }
             }
 
-            switch (err.response.data.message) {
-                case "validation/enroll-already-exist":
-                    setSnackBar({
-                        open: true,
-                        message: "Enroll no already exist",
-                        severity: "warning",
-                    })
-                    break;
-                case "auth/phone-number-already-exists":
-                    setSnackBar({
-                        open: true,
-                        message: "Phone number already exist",
-                        severity: "warning",
-                    })
-                    break;
-                case "auth/email-already-exists":
-                    setSnackBar({
-                        open: true,
-                        message: "Email already exist",
-                        severity: "warning",
-                    })
-                    break;
-                case "auth/invalid-phone-number":
-                    setSnackBar({
-                        open: true,
-                        message: "Invalid Email or Phone",
-                        severity: "warning",
-                    })
-                    break;
-                case "Invalid token":
-                    setSnackBar({
-                        open: true,
-                        message: "Login again session has expired",
-                        severity: "error",
-                    })
-                    break;
-            }
-
-            setSubmitLoading(false)
+            setSubmitLoading(false);
         }).finally(() => {
             setSubmitLoading(false)
             setTimeout(() => {
