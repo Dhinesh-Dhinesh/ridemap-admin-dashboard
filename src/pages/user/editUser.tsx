@@ -12,12 +12,14 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { LoadingButton } from "@mui/lab";
-import { InputAdornment, Tooltip } from "@mui/material";
+import { Alert, InputAdornment, Tooltip } from "@mui/material";
 import Zoom from '@mui/material/Zoom';
 
+import useApi from '../../util/api';
 
 // mui icons
 import InfoIcon from '@mui/icons-material/Info';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 // Firebase
 import { collection, getCountFromServer, query, where } from 'firebase/firestore';
@@ -37,9 +39,12 @@ import { getDepartments, getBusses } from '../../redux/features/instituteSlice';
 import { shallowEqual } from 'react-redux';
 
 //! types
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
 import { parseValidUpto } from '../../util/dateFormatter';
+import type { snackBar } from '../../types';
+import SnackBar from '../../components/SnackBar';
+import { BaseButton } from '../../components/BaseButton';
 
 type FormData = {
     name: string;
@@ -58,14 +63,24 @@ type FormData = {
 
 export default function editUser() {
 
+    const [editUserUid, setEditUserUid] = useState<string>('');
+
     // form
-    const [busNo, setBusNo] = useState<string>('')
+    const [busNo, setBusNo] = useState<string>('');
     const [busNoCount, setBusNoCount] = useState<number>(0);
     const [sumbitLoading, setSubmitLoading] = useState<boolean>(false);
     const { handleSubmit, control, setValue, formState, reset, setError } = useForm<FormData>();
 
     const location = useLocation();
+    const navigate = useNavigate();
     const isNonMobile = useMediaQuery("(min-width:600px)");
+    const api = useApi()
+
+    const [snackBar, setSnackBar] = useState<snackBar>({
+        open: false,
+        message: "",
+        severity: undefined
+    });
 
     // redux
     const dispatch = useAppDispatch();
@@ -92,14 +107,57 @@ export default function editUser() {
 
         setSubmitLoading(true);
 
-        console.log(formData)
+        // make a POST request for update user on api
 
-        alert(formData)
+        const data = {
+            userId: editUserUid,
+            userForm: { institute, ...formData }
+        }
 
-        setBusNo('')
-        reset();
+        api.post("user/update", data).then((data: any) => {
+            console.log(data)
 
-        setSubmitLoading(false)
+            console.log(data.data.message)
+
+            if (data.data.message === "auth/user-updated-successfully") {
+                setSnackBar({
+                    open: true,
+                    message: "User updated successfully",
+                    severity: "success",
+                })
+                setBusNo('')
+
+                //reset or replace new value when update success
+                reset(formData)
+            }
+        }).catch(err => {
+            console.log(err)
+
+            if (err.message === "Network Error") {
+                setSnackBar({ open: true, message: "Network error", severity: "error" });
+            } else {
+                const errorMessage = err.response?.data?.message;
+
+                if (errorMessage) {
+                    const errorMessages: { [key: string]: string } = {
+                        "validation/enroll-already-exist": "Enroll no already exist",
+                        "process/error": "Something went wrong",
+                        "Invalid token": "Login again session has expired",
+                    };
+
+                    const severity = errorMessage === ("Invalid token" || "process/error") ? "error" : "warning";
+                    setSnackBar({ open: true, message: errorMessages[errorMessage as keyof typeof errorMessages], severity });
+                }
+            }
+
+            setSubmitLoading(false);
+        }).finally(() => {
+            setSubmitLoading(false)
+            setTimeout(() => {
+                setSnackBar((prev) => ({ ...prev, open: false }));
+            }, 1000);
+        })
+
     }
 
 
@@ -107,7 +165,9 @@ export default function editUser() {
     useEffect(() => {
         if (location.state) {
 
-            let values: FormData = location.state.userData;
+            let values: FormData & { id: string } = location.state.userData;
+
+            setEditUserUid(values.id)
 
             let parsedValidUpto = parseValidUpto(values.validUpto as string)
 
@@ -125,8 +185,6 @@ export default function editUser() {
                 validUpto: dayjs(parsedValidUpto),
                 gender: values.gender
             })
-
-            console.log(values.validUpto)
         }
     }, [location]);
 
@@ -164,10 +222,21 @@ export default function editUser() {
 
     return (
         <Box m="20px">
-            <div className='mb-4'>
-                <h1 className="text-3xl font-bold">Edit User</h1>
-                <h4 className="text-l font-semibold mt-3 ml-0.5">Edit user data</h4>
-            </div>
+            {/* Header */}
+
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <div className='mb-4'>
+                    <h1 className="text-3xl font-bold">Edit User</h1>
+                    <h4 className="text-l font-semibold mt-3 ml-0.5">Edit user data</h4>
+                </div>
+                <BaseButton onClick={() => navigate(-1)}>
+                    <div className="flex justify-center items-center">
+                        <ArrowBackIosIcon fontSize="small" />
+                        <p>Back</p>
+                    </div>
+                </BaseButton>
+            </Box>
+
             <Box
                 component="form"
                 display="grid"
@@ -249,7 +318,7 @@ export default function editUser() {
                                 endAdornment: (
                                     <InputAdornment position="end">
                                         <Tooltip TransitionComponent={Zoom} arrow enterTouchDelay={0} sx={{ cursor: "default" }} disableInteractive={true}
-                                            title="Account creation is possible via phone or email. If you prefer to use email as your login, enter it here; otherwise, use phone.">
+                                            title="Email and phone cannot be changed">
                                             <InfoIcon />
                                         </Tooltip>
                                     </InputAdornment>
@@ -503,9 +572,14 @@ export default function editUser() {
                     variant="contained"
                     loading={sumbitLoading}
                 >
-                    Submit
+                    Update
                 </LoadingButton>
             </Box>
+            <SnackBar isOpen={snackBar.open}>
+                <div className="w-full">
+                    <Alert severity={snackBar.severity} variant='filled'>{snackBar.message}</Alert>
+                </div>
+            </SnackBar>
         </Box>
     )
 }
