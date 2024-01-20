@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 
-// Mui
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
@@ -13,40 +12,39 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import { LoadingButton } from "@mui/lab";
-
 import { Alert, InputAdornment, Tooltip } from "@mui/material";
-
 import Zoom from '@mui/material/Zoom';
+
+import useApi from '../../util/api';
 
 // mui icons
 import InfoIcon from '@mui/icons-material/Info';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
-
-// mui customs
-import SnackBar from '../../components/SnackBar';
-
-// Date Picker
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+// Firebase
+import { collection, getCountFromServer, query, where } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 // form control
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
+
+// Date Picker
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 //& Redux
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { getDepartments, getBusses } from '../../redux/features/instituteSlice';
 import { shallowEqual } from 'react-redux';
 
-import useApi from '../../util/api';
-
-// Router
-import { collection, getCountFromServer, query, where } from 'firebase/firestore';
-import { db } from '../../firebase';
-import dayjs from 'dayjs';
-
 //! types
+import { useLocation, useNavigate } from 'react-router-dom';
+import dayjs, { Dayjs } from 'dayjs';
+import { parseValidUpto } from '../../util/dateFormatter';
 import type { snackBar } from '../../types';
+import SnackBar from '../../components/SnackBar';
+import { BaseButton } from '../../components/BaseButton';
 
 type FormData = {
     name: string;
@@ -59,14 +57,24 @@ type FormData = {
     busStop: string;
     busNo: string | null;
     department: string | null;
-    validUpto: string;
+    validUpto: string | Dayjs;
     gender: string;
 }
 
-const CreateUser: React.FC = () => {
+export default function editUser() {
 
+    const [editUserUid, setEditUserUid] = useState<string>('');
+
+    // form
+    const [busNo, setBusNo] = useState<string>('');
+    const [busNoCount, setBusNoCount] = useState<number>(0);
+    const [sumbitLoading, setSubmitLoading] = useState<boolean>(false);
+    const { handleSubmit, control, setValue, formState, reset, setError } = useForm<FormData>();
+
+    const location = useLocation();
+    const navigate = useNavigate();
     const isNonMobile = useMediaQuery("(min-width:600px)");
-    const api = useApi();
+    const api = useApi()
 
     const [snackBar, setSnackBar] = useState<snackBar>({
         open: false,
@@ -86,32 +94,41 @@ const CreateUser: React.FC = () => {
         shallowEqual
     );
 
-    // form
-    const [busNo, setBusNo] = useState<string>('')
-    const [busNoCount, setBusNoCount] = useState<number>(0);
-    const [sumbitLoading, setSubmitLoading] = useState<boolean>(false);
-    const { handleSubmit, control, setValue, formState, reset, setError } = useForm<FormData>();
+    // handlers
+    const handleEmailOrPhoneChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const value = event.target.value;
+
+        if (formState.isDirty && value.match(/(^\d{10}$)/)) {
+            setValue('phone', value, { shouldValidate: true });
+        }
+    };
 
     const onSubmit: SubmitHandler<FormData> = (formData) => {
 
         setSubmitLoading(true);
 
-        // trim all the values
-        // const userData = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, value.trim()]));
+        // make a POST request for update user on api
 
-        api.post("user/create", { ...formData, institute }).then((data: any) => {
+        const data = {
+            userId: editUserUid,
+            userForm: { institute, ...formData }
+        }
+
+        api.post("user/update", data).then((data: any) => {
             console.log(data)
 
             console.log(data.data.message)
 
-            if (data.data.message === "auth/user-created-successfully") {
+            if (data.data.message === "auth/user-updated-successfully") {
                 setSnackBar({
                     open: true,
-                    message: "User created successfully",
+                    message: "User updated successfully",
                     severity: "success",
                 })
                 setBusNo('')
-                reset();
+
+                //reset or replace new value when update success
+                reset(formData)
             }
         }).catch(err => {
             console.log(err)
@@ -124,13 +141,11 @@ const CreateUser: React.FC = () => {
                 if (errorMessage) {
                     const errorMessages: { [key: string]: string } = {
                         "validation/enroll-already-exist": "Enroll no already exist",
-                        "auth/phone-number-already-exists": "Phone number already exist",
-                        "auth/email-already-exists": "Email already exist",
-                        "auth/invalid-phone-number": "Invalid Email or Phone",
+                        "process/error": "Something went wrong",
                         "Invalid token": "Login again session has expired",
                     };
 
-                    const severity = errorMessage === "Invalid token" ? "error" : "warning";
+                    const severity = errorMessage === ("Invalid token" || "process/error") ? "error" : "warning";
                     setSnackBar({ open: true, message: errorMessages[errorMessage as keyof typeof errorMessages], severity });
                 }
             }
@@ -143,15 +158,35 @@ const CreateUser: React.FC = () => {
             }, 1000);
         })
 
-    };
+    }
 
-    const handleEmailOrPhoneChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const value = event.target.value;
 
-        if (formState.isDirty && value.match(/(^\d{10}$)/)) {
-            setValue('phone', value, { shouldValidate: true });
+    // gets the state from the state object passed from the previous page
+    useEffect(() => {
+        if (location.state) {
+
+            let values: FormData & { id: string } = location.state.userData;
+
+            setEditUserUid(values.id)
+
+            let parsedValidUpto = parseValidUpto(values.validUpto as string)
+
+            reset({
+                name: values.name,
+                fatherName: values.fatherName,
+                emailOrPhone: values.emailOrPhone,
+                phone: values.phone,
+                enrollNo: values.enrollNo,
+                address: values.address,
+                city: values.city,
+                busStop: values.busStop,
+                busNo: values.busNo,
+                department: values.department,
+                validUpto: dayjs(parsedValidUpto),
+                gender: values.gender
+            })
         }
-    };
+    }, [location]);
 
     // for setting value of departments & busses
     useEffect(() => {
@@ -180,21 +215,28 @@ const CreateUser: React.FC = () => {
                     console.log(err)
                 }
             }
-
             setBusNoCount(0)
-
             getBusNoCount();
-
-
         }
     }, [busNo])
 
     return (
         <Box m="20px">
-            <div className='mb-4'>
-                <h1 className="text-3xl font-bold">Create User</h1>
-                <h4 className="text-l font-semibold mt-3 ml-0.5">Create a new user profile</h4>
-            </div>
+            {/* Header */}
+
+            <Box display="flex" justifyContent="space-between" alignItems="center">
+                <div className='mb-4'>
+                    <h1 className="text-3xl font-bold">Edit User</h1>
+                    <h4 className="text-l font-semibold mt-3 ml-0.5">Edit user data</h4>
+                </div>
+                <BaseButton onClick={() => navigate(-1)}>
+                    <div className="flex justify-center items-center">
+                        <ArrowBackIosIcon fontSize="small" />
+                        <p>Back</p>
+                    </div>
+                </BaseButton>
+            </Box>
+
             <Box
                 component="form"
                 display="grid"
@@ -259,6 +301,7 @@ const CreateUser: React.FC = () => {
                     defaultValue=""
                     render={({ field: { onChange, value }, fieldState: { error } }) => (
                         <TextField
+                            disabled
                             label="Email or phone"
                             variant="outlined"
                             value={value}
@@ -275,7 +318,7 @@ const CreateUser: React.FC = () => {
                                 endAdornment: (
                                     <InputAdornment position="end">
                                         <Tooltip TransitionComponent={Zoom} arrow enterTouchDelay={0} sx={{ cursor: "default" }} disableInteractive={true}
-                                            title="Account creation is possible via phone or email. If you prefer to use email as your login, enter it here; otherwise, use phone.">
+                                            title="Email and phone cannot be changed">
                                             <InfoIcon />
                                         </Tooltip>
                                     </InputAdornment>
@@ -529,7 +572,7 @@ const CreateUser: React.FC = () => {
                     variant="contained"
                     loading={sumbitLoading}
                 >
-                    Submit
+                    Update
                 </LoadingButton>
             </Box>
             <SnackBar isOpen={snackBar.open}>
@@ -540,5 +583,3 @@ const CreateUser: React.FC = () => {
         </Box>
     )
 }
-
-export default CreateUser;

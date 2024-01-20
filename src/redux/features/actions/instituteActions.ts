@@ -137,9 +137,9 @@ export const getUsersFromInstitute = async (institute: string): Promise<UserData
 
         const snapshot = await getDocs(q);
 
-        const data: UserData[] | null = snapshot.docs.map((doc, index) => {
+        const data: UserData[] | null = snapshot.docs.map((doc) => {
             return {
-                id: index + 1,
+                id: doc.id,
                 name: doc.data().name,
                 fatherName: doc.data().fatherName,
                 enrollNo: doc.data().enrollNo,
