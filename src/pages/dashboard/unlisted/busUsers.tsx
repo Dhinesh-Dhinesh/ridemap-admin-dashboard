@@ -14,6 +14,8 @@ import { getBusses, removeBusUserCount, removeUserRecords } from '../../../redux
 import SnackBar from '../../../components/SnackBar'
 
 import type { snackBar } from '../../../types'
+import { customSortComparator } from '../../../util/customSortComparator'
+import EditIcon from '@mui/icons-material/Edit';
 
 const BusUsers = () => {
 
@@ -123,8 +125,15 @@ const BusUsers = () => {
         { field: 'busStop', headerName: 'Bus Stop', minWidth: 170 },
         // Editable busNo filed from busses on specified institute in db
         {
-            field: 'busNo', headerName: 'Bus No', minWidth: 120,
-            editable: true,
+            field: 'busNo', headerName: 'Bus No', width: 120, editable: true,
+            renderHeader: (params) => (
+                <div className="flex items-center">
+                    <div>{params.colDef.headerName}</div>
+                    <div className="ml-2">
+                        <EditIcon style={{ fontSize: 16, color: "gray" }} />
+                    </div>
+                </div>
+            ),
             renderEditCell: (params) => {
 
                 let userId: string = params.row.id;
@@ -165,8 +174,8 @@ const BusUsers = () => {
         { field: 'city', headerName: 'City', minWidth: 100 },
         { field: 'address', headerName: 'Address', minWidth: 200 },
         { field: 'validUpto', headerName: 'Valid Up To', minWidth: 120 },
-        { field: 'createdAt', headerName: 'Created At', minWidth: 180 },
-        { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120 }
+        { field: 'createdAt', headerName: 'Created At', minWidth: 180, sortComparator: (v1, v2) => customSortComparator(v1, v2) },
+        { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120, sortComparator: (v1, v2) => customSortComparator(v1, v2) }
     ];
 
     const getBusUsersData = async () => {
@@ -238,7 +247,7 @@ const BusUsers = () => {
                             paginationModel: { page: 0, pageSize: 50 },
                         },
                         sorting: {
-                            sortModel: [{ field: 'createdAt', sort: 'desc' }]
+                            sortModel: [{ field: 'createdAt', sort: 'asc' }]
                         }
                     }}
                     slots={{
