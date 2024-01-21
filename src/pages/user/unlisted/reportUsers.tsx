@@ -1,12 +1,12 @@
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { Alert, Box, Button, Paper, TextField } from "@mui/material"
 import { ref, uploadBytesResumable } from 'firebase/storage';
-import { db, storage } from '../../firebase/index';
+import { db, storage } from '../../../firebase/index';
 import ImageViewer from "react-simple-image-viewer";
 import BackupIcon from '@mui/icons-material/Backup';
-import SnackBar from "../../components/SnackBar";
+import SnackBar from "../../../components/SnackBar";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAppSelector } from "../../redux/hooks";
+import { useAppSelector } from "../../../redux/hooks";
 import { shallowEqual } from "react-redux";
 import { collection, addDoc, serverTimestamp, where, query, getDocs, setDoc } from "firebase/firestore";
 

@@ -15,7 +15,7 @@ import { LoadingButton } from "@mui/lab";
 import { Alert, InputAdornment, Tooltip } from "@mui/material";
 import Zoom from '@mui/material/Zoom';
 
-import useApi from '../../util/api';
+import useApi from '../../../util/api';
 
 // mui icons
 import InfoIcon from '@mui/icons-material/Info';
@@ -23,7 +23,7 @@ import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
 
 // Firebase
 import { collection, getCountFromServer, query, where } from 'firebase/firestore';
-import { db } from '../../firebase';
+import { db } from '../../../firebase';
 
 // form control
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
@@ -34,17 +34,17 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 //& Redux
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { getDepartments, getBusses } from '../../redux/features/instituteSlice';
+import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
+import { getDepartments, getBusses } from '../../../redux/features/instituteSlice';
 import { shallowEqual } from 'react-redux';
 
 //! types
 import { useLocation, useNavigate } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
-import { parseValidUpto } from '../../util/dateFormatter';
-import type { snackBar } from '../../types';
-import SnackBar from '../../components/SnackBar';
-import { BaseButton } from '../../components/BaseButton';
+import { parseValidUpto } from '../../../util/dateFormatter';
+import type { snackBar } from '../../../types';
+import SnackBar from '../../../components/SnackBar';
+import { BaseButton } from '../../../components/BaseButton';
 
 type FormData = {
     name: string;

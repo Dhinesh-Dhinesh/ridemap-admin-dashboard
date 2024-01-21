@@ -10,11 +10,13 @@ import Dashboard from "./pages/dashboard";
 import User from "./pages/user/user";
 import CreateUser from "./pages/user/createUser";
 import Admin from "./pages/admin/admin";
-import CreateAdmin from "./pages/admin/createAdmin";
 import Settings from "./pages/settings"
-import ReportUser from "./pages/user/reportUsers";
 import ViewUserReports from "./pages/user/viewUserReports"
-import EditUser from './pages/user/editUser'
+
+// Unlisted pages
+import CreateAdmin from "./pages/admin/unlisted/createAdmin";
+import ReportUser from "./pages/user/unlisted/reportUsers";
+import EditUser from './pages/user/unlisted/editUser'
 
 import Topbar from "./global/Topbar";
 
@@ -32,7 +34,7 @@ import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { setUserData, removeUserData, getAdminData } from "./redux/features/userSlice";
 import { useAppDispatch, useAppSelector } from "./redux/hooks";
 import SearchUser from "./pages/user/searchUser";
-import BusUsers from "./pages/dashboard/busUsers";
+import BusUsers from "./pages/dashboard/unlisted/busUsers";
 
 
 

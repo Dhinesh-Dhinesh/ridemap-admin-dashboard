@@ -1,6 +1,6 @@
 // MUI
 import { Alert, Box, TextField, useMediaQuery } from "@mui/material"
-import { BaseButton } from "../../components/BaseButton";
+import { BaseButton } from "../../../components/BaseButton";
 
 // MUI icons
 import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
@@ -15,11 +15,11 @@ import { useState } from "react";
 // React Hook Form
 import { useForm, SubmitHandler, Controller } from 'react-hook-form';
 import { LoadingButton } from "@mui/lab";
-import useApi from "../../util/api";
+import useApi from "../../../util/api";
 
-import SnackBar from '../../components/SnackBar';
-import { useAppSelector, useAppDispatch } from "../../redux/hooks";
-import { getAdmins } from "../../redux/features/instituteSlice";
+import SnackBar from '../../../components/SnackBar';
+import { useAppSelector, useAppDispatch } from "../../../redux/hooks";
+import { getAdmins } from "../../../redux/features/instituteSlice";
 
 const formDataProps = [
     'name',
