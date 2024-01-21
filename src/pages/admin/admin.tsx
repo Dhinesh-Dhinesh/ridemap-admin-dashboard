@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useApi from "../../util/api";
 
 // Mui
@@ -21,7 +22,8 @@ import { getAdmins } from "../../redux/features/instituteSlice";
 //& Types
 import type { Admins } from "../../types";
 
-import { useNavigate } from "react-router-dom";
+// utli
+import { customSortComparator } from "../../util/customSortComparator";
 
 type snackBar = {
   open: boolean;
@@ -75,8 +77,8 @@ const Admin = () => {
     { field: 'email', headerName: 'Email', width: 260 },
     { field: 'userId', headerName: 'User Id', width: 300 },
     { field: 'phone', headerName: 'Phone', width: 150 },
-    { field: 'createdAt', headerName: 'Created At', width: 180 },
-    { field: 'lastLoginAt', headerName: 'Last Login At', width: 180 }
+    { field: 'createdAt', headerName: 'Created At', minWidth: 180, sortComparator: (v1, v2) => customSortComparator(v1, v2) },
+    { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120, sortComparator: (v1, v2) => customSortComparator(v1, v2) },
   ];
 
   return (

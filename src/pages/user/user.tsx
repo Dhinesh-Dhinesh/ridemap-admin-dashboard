@@ -16,6 +16,9 @@ import { useEffect } from "react";
 import { getUsers } from "../../redux/features/instituteSlice";
 import { UserData } from "../../types";
 
+// util
+import { customSortComparator } from "../../util/customSortComparator";
+
 const User = () => {
 
   const navigate = useNavigate()
@@ -54,8 +57,8 @@ const User = () => {
     { field: 'busNo', headerName: 'Bus No', minWidth: 120 },
     { field: 'address', headerName: 'Address', minWidth: 200 },
     { field: 'validUpto', headerName: 'Valid Up To', minWidth: 120 },
-    { field: 'createdAt', headerName: 'Created At', minWidth: 180 },
-    { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120 },
+    { field: 'createdAt', headerName: 'Created At', minWidth: 180, sortComparator: (v1, v2) => customSortComparator(v1, v2) },
+    { field: 'lastLoginAt', headerName: 'Last Login At', minWidth: 120, sortComparator: (v1, v2) => customSortComparator(v1, v2) },
     {
       field: 'edit', headerName: "Edit", minWidth: 80, type: 'actions',
       getActions: ({ row }) => {
@@ -105,7 +108,7 @@ const User = () => {
               paginationModel: { page: 0, pageSize: 50 },
             },
             sorting: {
-              sortModel: [{ field: 'createdAt', sort: 'desc' }]
+              sortModel: [{ field: 'createdAt', sort: 'asc' }]
             }
           }}
           slots={{
