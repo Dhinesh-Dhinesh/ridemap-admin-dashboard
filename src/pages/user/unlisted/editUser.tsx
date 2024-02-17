@@ -35,7 +35,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 //& Redux
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
-import { getDepartments, getBusses } from '../../../redux/features/instituteSlice';
+import { getDepartments, getBusses, getUsers } from '../../../redux/features/instituteSlice';
 import { shallowEqual } from 'react-redux';
 
 //! types
@@ -130,6 +130,10 @@ export default function editUser() {
                 //reset or replace new value when update success
                 reset(formData)
             }
+
+            // refresh user records
+            dispatch(getUsers(institute as string));
+
         }).catch(err => {
             console.log(err)
 
